@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIE Note Builder - School Nursing Documentation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PIE Note Builder</h1>
+            <p class="subtitle">Problem → Intervention → Evaluation</p>
+        </header>
+
+        <!-- Clinical Decision Support Alerts -->
+        <div id="cdsAlerts" class="cds-alerts"></div>
+
+        <!-- Problem Section -->
+        <section class="card">
+            <h2>Problem</h2>
+            <div class="problem-buttons">
+                <button class="problem-btn" data-problem="diabetes">Diabetes Management</button>
+                <button class="problem-btn" data-problem="medication">Medication Administration</button>
+                <button class="problem-btn" data-problem="first-aid">First Aid / Minor Injury</button>
+                <button class="problem-btn" data-problem="other">Other</button>
+            </div>
+        </section>
+
+        <!-- Intervention Section (dynamically populated) -->
+        <section class="card intervention-section" id="interventionSection" style="display: none;">
+            <h2>Intervention</h2>
+            <div id="interventionContent"></div>
+        </section>
+
+        <!-- Evaluation Section -->
+        <section class="card evaluation-section" id="evaluationSection" style="display: none;">
+            <h2>Evaluation</h2>
+            <div id="evaluationContent"></div>
+        </section>
+
+        <!-- Note Format Options -->
+        <section class="card format-section" id="formatSection" style="display: none;">
+            <h2>Note Format Options</h2>
+            <div class="checkbox-item">
+                <input type="checkbox" id="piePrefix" checked>
+                <label for="piePrefix">Include PIE prefixes (P:, I:, E:) in note</label>
+            </div>
+            <p class="info-text" style="margin-top: 10px;">With prefixes: "P: Student presented with..." | Without: "Student presented with..."</p>
+        </section>
+
+        <!-- Generated Note Preview -->
+        <section class="card note-preview" id="notePreview" style="display: none;">
+            <h2>Generated PIE Note</h2>
+            <div class="note-content" id="noteContent"></div>
+            <div class="note-actions">
+                <button id="copyBtn" class="primary-btn">Copy to Clipboard</button>
+                <button id="resetBtn" class="secondary-btn">Start New Note</button>
+            </div>
+            <div id="copyFeedback" class="copy-feedback"></div>
+        </section>
+
+        <!-- Usage Statistics (for clinical decision support) -->
+        <section class="card stats-section" id="statsSection">
+            <h2>📊 Your Documentation Patterns</h2>
+            <div id="statsContent">
+                <p class="info-text">Pattern tracking will appear after you create a few notes.</p>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
