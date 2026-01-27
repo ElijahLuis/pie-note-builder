@@ -1,6 +1,87 @@
 // PIE Note Builder - Clinical Documentation Assistant
 // Tracks patterns and provides clinical decision support
 
+// Clinical and System Constants
+const CLINICAL_LIMITS = {
+    // Blood Glucose Thresholds (mg/dL)
+    BG_CRITICAL_LOW: 40,
+    BG_WARNING_LOW: 70,
+    BG_WARNING_HIGH: 250,
+    BG_CRITICAL_HIGH: 400,
+    
+    // Insulin Safety Limits (units)
+    INSULIN_WARNING_THRESHOLD: 20,
+    INSULIN_CRITICAL_THRESHOLD: 50,
+    
+    // Carbohydrate Limits (grams)
+    CARB_WARNING_THRESHOLD: 150,
+    CARB_CRITICAL_THRESHOLD: 250,
+    
+    // Order Management
+    ORDER_CHECK_DAYS: 30,
+    
+    // Visit Frequency Thresholds
+    FREQUENT_VISIT_DAYS: 7,
+    FREQUENT_VISIT_COUNT: 3
+};
+
+const STORAGE_CONFIG = {
+    MAX_HISTORY_NOTES: 100,
+    MAX_STORAGE_ITEMS: 1000
+};
+
+// Utility Functions
+
+/**
+ * Checks if localStorage is available and functional
+ * @returns {boolean} True if localStorage is available, false otherwise
+ */
+function isLocalStorageAvailable() {
+    try {
+        const testKey = '__storage_test__';
+        localStorage.setItem(testKey, 'test');
+        localStorage.removeItem(testKey);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+/**
+ * Displays a user-friendly storage error message
+ * @param {string} message - The error message to display
+ * @returns {void}
+ */
+function showStorageError(message) {
+    const alertsDiv = document.getElementById('cdsAlerts');
+    if (!alertsDiv) return;
+    
+    const alert = document.createElement('div');
+    alert.className = 'cds-alert warning';
+    alert.innerHTML = `<strong>⚠️ Storage Error</strong><p>${message}</p>`;
+    alertsDiv.appendChild(alert);
+}
+
+/**
+ * Safely creates a text node to prevent XSS
+ * @param {string} text - The text content
+ * @returns {Text} A text node
+ */
+function createSafeText(text) {
+    return document.createTextNode(text || '');
+}
+
+/**
+ * Sanitizes HTML input by escaping special characters
+ * @param {string} str - The string to sanitize
+ * @returns {string} Sanitized string
+ */
+function sanitizeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 // Data structures
 const problems = {
     diabetes: {
@@ -125,7 +206,11 @@ function setupProblemButtons() {
     });
 }
 
-// Display interventions based on selected problem
+/**
+ * Displays intervention form elements based on the selected problem type
+ * @param {string} problemKey - The key of the problem type (diabetes, medication, first-aid, other)
+ * @returns {void}
+ */
 function displayInterventions(problemKey) {
     const problem = problems[problemKey];
     const section = document.getElementById('interventionSection');
@@ -184,7 +269,12 @@ function displayInterventions(problemKey) {
     section.classList.add('fade-in');
 }
 
-// Update intervention state
+/**
+ * Updates intervention state when user modifies form inputs
+ * Includes validation and safety checks for clinical values
+ * @param {Event} e - The DOM event from the input/change
+ * @returns {void}
+ */
 function updateInterventionState(e) {
     const id = e.target.id;
     let value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -201,29 +291,59 @@ function updateInterventionState(e) {
         
         // Safety checks for carbs
         if (id === 'carbs-consumed' && numValue > 0) {
-            // Warning for high but possible carb consumption (150-250g)
-            if (numValue > 150 && numValue <= 250) {
+            // Warning for high but possible carb consumption
+            if (numValue > CLINICAL_LIMITS.CARB_WARNING_THRESHOLD && numValue <= CLINICAL_LIMITS.CARB_CRITICAL_THRESHOLD) {
                 showCarbWarning('warning', numValue);
             }
-            // Critical alert for unreasonably high carbs (>250g)
-            else if (numValue > 250) {
+            // Critical alert for unreasonably high carbs - require confirmation
+            else if (numValue > CLINICAL_LIMITS.CARB_CRITICAL_THRESHOLD) {
+                if (!confirm(`⚠️ CRITICAL: Carbohydrate value of ${numValue}g exceeds safe limit (${CLINICAL_LIMITS.CARB_CRITICAL_THRESHOLD}g).\n\nThis is unusually high for a single meal. Please verify:\n- Is this a data entry error?\n- Is this truly the amount consumed?\n\nClick OK to cap at ${CLINICAL_LIMITS.CARB_CRITICAL_THRESHOLD}g, or Cancel to re-enter.`)) {
+                    e.target.value = '';
+                    value = '';
+                    currentState.interventions[id] = value;
+                    generateNote();
+                    return;
+                }
                 showCarbWarning('critical', numValue);
-                e.target.value = 250;
-                value = 250;
+                e.target.value = CLINICAL_LIMITS.CARB_CRITICAL_THRESHOLD;
+                value = CLINICAL_LIMITS.CARB_CRITICAL_THRESHOLD;
             }
         }
         
-        // Safety checks for insulin
-        if (id === 'insulin-admin' && numValue > 50) {
+        // Safety checks for insulin - hard limit requires confirmation
+        if (id === 'insulin-admin' && numValue > CLINICAL_LIMITS.INSULIN_CRITICAL_THRESHOLD) {
+            if (!confirm(`🚨 CRITICAL: Insulin dose of ${numValue} units exceeds safe threshold (${CLINICAL_LIMITS.INSULIN_CRITICAL_THRESHOLD} units).\n\nBEFORE PROCEEDING:\n✓ Verify medical orders\n✓ Double-check dose calculation\n✓ Confirm insulin-to-carb ratio\n✓ Verify correction factor\n\nClick OK only if you have verified this dose is correct.\nClick Cancel to re-enter the value.`)) {
+                e.target.value = '';
+                value = '';
+                currentState.interventions[id] = value;
+                generateNote();
+                return;
+            }
+            showInsulinWarning(numValue);
+        } else if (id === 'insulin-admin' && numValue > CLINICAL_LIMITS.INSULIN_WARNING_THRESHOLD) {
             showInsulinWarning(numValue);
         }
         
-        // Safety checks for BG
+        // Safety checks for BG - critical values require acknowledgment
         if (id === 'bg-check') {
-            if (numValue < 40 && numValue > 0) {
+            if (numValue < CLINICAL_LIMITS.BG_CRITICAL_LOW && numValue > 0) {
                 showBGWarning('critical-low', numValue);
-            } else if (numValue > 400) {
+                if (!confirm(`🚨 CRITICAL HYPOGLYCEMIA: BG ${numValue} mg/dL is dangerously low.\n\nIMMEDIATE ACTIONS REQUIRED:\n• Give 15g fast-acting carbs\n• Recheck in 15 minutes\n• Stay with student\n• Notify parent\n• Consider glucagon if unable to swallow\n\nClick OK to confirm you are taking appropriate action.`)) {
+                    e.target.value = '';
+                    value = '';
+                    currentState.interventions[id] = value;
+                    generateNote();
+                    return;
+                }
+            } else if (numValue > CLINICAL_LIMITS.BG_CRITICAL_HIGH) {
                 showBGWarning('critical-high', numValue);
+                if (!confirm(`🚨 CRITICAL HYPERGLYCEMIA: BG ${numValue} mg/dL is dangerously high.\n\nIMMEDIATE ACTIONS REQUIRED:\n• Check for ketones (if available)\n• Verify correction factor per orders\n• Notify parent immediately\n• Consider MD consultation\n• Monitor for DKA symptoms\n\nClick OK to confirm you are taking appropriate action.`)) {
+                    e.target.value = '';
+                    value = '';
+                    currentState.interventions[id] = value;
+                    generateNote();
+                    return;
+                }
             }
         }
     }
@@ -232,7 +352,11 @@ function updateInterventionState(e) {
     generateNote();
 }
 
-// Display evaluation section
+/**
+ * Displays the evaluation section based on selected problem type
+ * @param {string} problemKey - The key of the problem type
+ * @returns {void}
+ */
 function displayEvaluation(problemKey) {
     const problem = problems[problemKey];
     const section = document.getElementById('evaluationSection');
@@ -330,7 +454,11 @@ function displayEvaluation(problemKey) {
     section.classList.add('fade-in');
 }
 
-// Update evaluation state
+/**
+ * Updates evaluation state when user modifies evaluation form inputs
+ * @param {Event} e - The DOM event from the input/change
+ * @returns {void}
+ */
 function updateEvaluationState(e) {
     const id = e.target.id;
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -353,7 +481,11 @@ function showFormatOptions() {
     section.classList.add('fade-in');
 }
 
-// Generate PIE formatted note
+/**
+ * Generates a PIE-formatted clinical note based on current state
+ * Creates Problem, Intervention, and Evaluation sections
+ * @returns {void}
+ */
 function generateNote() {
     const problem = problems[currentState.problem];
     if (!problem) return;
@@ -635,7 +767,11 @@ function formatTime(timeString) {
     return `${hour12}:${minutes} ${ampm}`;
 }
 
-// Copy to clipboard functionality
+/**
+ * Sets up copy button functionality with clipboard API
+ * @param {string} noteText - The note text to copy
+ * @returns {void}
+ */
 function setupCopyButton(noteText) {
     const copyBtn = document.getElementById('copyBtn');
     const feedback = document.getElementById('copyFeedback');
@@ -652,8 +788,9 @@ function setupCopyButton(noteText) {
             setTimeout(() => {
                 feedback.classList.remove('show');
             }, 3000);
-        } catch (err) {
-            feedback.textContent = '✗ Failed to copy. Please try again.';
+        } catch (error) {
+            console.error('Clipboard error:', error);
+            feedback.textContent = '✗ Failed to copy. Please select and copy manually.';
             feedback.classList.add('show');
         }
     };
@@ -683,138 +820,204 @@ function setupResetButton() {
 }
 
 // Clinical Decision Support System - School Nursing Best Practices
+/**
+ * Analyzes usage patterns and generates clinical decision support alerts
+ * Provides guidance on medical orders, documentation, and best practices
+ * @returns {void}
+ */
 function checkClinicalDecisionSupport() {
     const alertsDiv = document.getElementById('cdsAlerts');
+    if (!alertsDiv) return;
+    
     alertsDiv.innerHTML = '';
     
-    const patterns = getUsagePatterns();
-    const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTE_HISTORY) || '[]');
-    
-    // 1. Medical Orders Verification (Required for Medicaid billing & liability)
-    const lastOrderCheck = localStorage.getItem(STORAGE_KEYS.LAST_ORDER_CHECK);
-    const daysSinceCheck = lastOrderCheck ? Math.floor((Date.now() - parseInt(lastOrderCheck)) / (1000 * 60 * 60 * 24)) : null;
-    
-    if (daysSinceCheck === null || daysSinceCheck > 30) {
+    try {
+        if (!isLocalStorageAvailable()) {
+            return; // Silently skip CDS if storage unavailable
+        }
+        
+        const patterns = getUsagePatterns();
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTE_HISTORY) || '[]');
+        
+        // 1. Medical Orders Verification (Required for Medicaid billing & liability)
+        const lastOrderCheck = localStorage.getItem(STORAGE_KEYS.LAST_ORDER_CHECK);
+        const daysSinceCheck = lastOrderCheck ? Math.floor((Date.now() - parseInt(lastOrderCheck)) / (1000 * 60 * 60 * 24)) : null;
+        
+        if (daysSinceCheck === null || daysSinceCheck > CLINICAL_LIMITS.ORDER_CHECK_DAYS) {
         showAlert('warning', '⚕️ Medical Order Review', 
             'Illinois School Code requires annual medical order review. Best practice: verify orders monthly. Document "medical orders reviewed and followed" in diabetes and medication notes.');
     }
     
-    // 2. Documentation Completeness (CPS/IDPH Guidelines)
-    if (patterns.totalNotes > 15) {
-        const ordersCheckedPercent = (patterns.ordersChecked || 0) / patterns.totalNotes;
+        // 2. Documentation Completeness (CPS/IDPH Guidelines)
+        if (patterns.totalNotes > 15) {
+            const ordersCheckedPercent = (patterns.ordersChecked || 0) / patterns.totalNotes;
+            
+            if (ordersCheckedPercent < 0.6) {
+                showAlert('info', '📋 Documentation Best Practice', 
+                    `Order verification documented in ${Math.round(ordersCheckedPercent * 100)}% of notes. Illinois Nurse Practice Act requires following physician orders. Document verification for legal protection.`);
+            }
+        }
         
-        if (ordersCheckedPercent < 0.6) {
-            showAlert('info', '📋 Documentation Best Practice', 
-                `Order verification documented in ${Math.round(ordersCheckedPercent * 100)}% of notes. Illinois Nurse Practice Act requires following physician orders. Document verification for legal protection.`);
+        // 3. Frequent Visitor Pattern (Potential Care Plan Need)
+        const recentHistory = history.filter(note => Date.now() - note.timestamp < CLINICAL_LIMITS.FREQUENT_VISIT_DAYS * 24 * 60 * 60 * 1000);
+        if (recentHistory.length >= 8) {
+            showAlert('warning', '🔄 Frequent Office Visits', 
+                `${recentHistory.length} notes documented in past ${CLINICAL_LIMITS.FREQUENT_VISIT_DAYS} days. Consider: Is care plan needed? Is there a pattern? Document parent communication and any referrals.`);
         }
-    }
-    
-    // 3. Frequent Visitor Pattern (Potential Care Plan Need)
-    const recentHistory = history.filter(note => Date.now() - note.timestamp < 7 * 24 * 60 * 60 * 1000); // Last 7 days
-    if (recentHistory.length >= 8) {
-        showAlert('warning', '🔄 Frequent Office Visits', 
-            `${recentHistory.length} notes documented in past 7 days. Consider: Is care plan needed? Is there a pattern? Document parent communication and any referrals.`);
-    }
-    
-    // 4. Diabetes Management Alert (ADA/IDPH Guidelines)
-    if (patterns.problems.diabetes >= 5) {
-        const recentDiabetes = history.filter(note => 
-            note.problem === 'diabetes' && 
-            Date.now() - note.timestamp < 30 * 24 * 60 * 60 * 1000
-        );
         
-        if (recentDiabetes.length >= 3) {
-            showAlert('info', '🩸 Diabetes Management', 
-                'Multiple diabetes encounters documented. Reminder: Illinois requires Diabetes Care Plan on file. Consider: Are BG logs being reviewed? Is parent communication documented?');
+        // 4. Diabetes Management Alert (ADA/IDPH Guidelines)
+        if (patterns.problems.diabetes >= 5) {
+            const recentDiabetes = history.filter(note => 
+                note.problem === 'diabetes' && 
+                Date.now() - note.timestamp < CLINICAL_LIMITS.ORDER_CHECK_DAYS * 24 * 60 * 60 * 1000
+            );
+            
+            if (recentDiabetes.length >= 3) {
+                showAlert('info', '🩸 Diabetes Management', 
+                    'Multiple diabetes encounters documented. Reminder: Illinois requires Diabetes Care Plan on file. Consider: Are BG logs being reviewed? Is parent communication documented?');
+            }
         }
-    }
-    
-    // 5. Assessment Variation (Clinical Growth Opportunity)
-    if (patterns.repeatedPatterns && patterns.repeatedPatterns.length > 0) {
-        const topPattern = patterns.repeatedPatterns[0];
-        if (topPattern.count > 12) {
-            const problemName = problems[topPattern.problem]?.name || topPattern.problem;
-            showAlert('info', '💡 Clinical Documentation Insight', 
-                `Similar ${problemName} documentation pattern used ${topPattern.count} times. Consider: Are assessments thorough? Does evaluation reflect student-specific response? Varied documentation demonstrates critical thinking.`);
+        
+        // 5. Assessment Variation (Clinical Growth Opportunity)
+        if (patterns.repeatedPatterns && patterns.repeatedPatterns.length > 0) {
+            const topPattern = patterns.repeatedPatterns[0];
+            if (topPattern.count > 12) {
+                const problemName = problems[topPattern.problem]?.name || topPattern.problem;
+                showAlert('info', '💡 Clinical Documentation Insight', 
+                    `Similar ${problemName} documentation pattern used ${topPattern.count} times. Consider: Are assessments thorough? Does evaluation reflect student-specific response? Varied documentation demonstrates critical thinking.`);
+            }
         }
-    }
+        
+        // 6. FERPA/Privacy Reminder (Periodic)
+        if (patterns.totalNotes > 0 && patterns.totalNotes % 25 === 0) {
+            showAlert('info', '🔒 FERPA Reminder', 
+                'Health records are protected by FERPA and HIPAA. Remember: Store notes securely, share only with authorized personnel, obtain consent for external releases. Keep student identifiers private.');
+        }
     
-    // 6. FERPA/Privacy Reminder (Periodic)
-    if (patterns.totalNotes > 0 && patterns.totalNotes % 25 === 0) {
-        showAlert('info', '🔒 FERPA Reminder', 
-            'Health records are protected by FERPA and HIPAA. Remember: Store notes securely, share only with authorized personnel, obtain consent for external releases. Keep student identifiers private.');
+    } catch (error) {
+        console.error('CDS check failed:', error);
+        // Non-critical feature, fail silently
     }
 }
 
+/**
+ * Displays a clinical decision support alert
+ * @param {string} type - Alert type: 'warning', 'info', 'danger'
+ * @param {string} title - Alert title
+ * @param {string} message - Alert message content
+ * @returns {void}
+ */
 function showAlert(type, title, message) {
     const alertsDiv = document.getElementById('cdsAlerts');
+    if (!alertsDiv) return;
+    
     const alert = document.createElement('div');
     alert.className = `cds-alert ${type}`;
-    alert.innerHTML = `<strong>${title}</strong><p>${message}</p>`;
+    alert.innerHTML = `<strong>${sanitizeHTML(title)}</strong><p>${sanitizeHTML(message)}</p>`;
     alertsDiv.appendChild(alert);
 }
 
 // Usage tracking and patterns
+/**
+ * Saves generated note data to localStorage history
+ * Tracks problem type, interventions, and order verification
+ * @returns {boolean} True if saved successfully, false otherwise
+ */
 function saveNoteToHistory() {
-    const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTE_HISTORY) || '[]');
-    
-    const noteData = {
-        timestamp: Date.now(),
-        problem: currentState.problem,
-        interventions: Object.keys(currentState.interventions),
-        ordersChecked: currentState.interventions['orders-checked'] || false
-    };
-    
-    history.push(noteData);
-    
-    // Keep only last 100 notes
-    if (history.length > 100) {
-        history.shift();
+    try {
+        if (!isLocalStorageAvailable()) {
+            console.warn('LocalStorage not available, note not saved to history');
+            return false;
+        }
+        
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTE_HISTORY) || '[]');
+        
+        const noteData = {
+            timestamp: Date.now(),
+            problem: currentState.problem,
+            interventions: Object.keys(currentState.interventions),
+            ordersChecked: currentState.interventions['orders-checked'] || false
+        };
+        
+        history.push(noteData);
+        
+        // Keep only last configured maximum notes
+        if (history.length > STORAGE_CONFIG.MAX_HISTORY_NOTES) {
+            history.shift();
+        }
+        
+        localStorage.setItem(STORAGE_KEYS.NOTE_HISTORY, JSON.stringify(history));
+        
+        // Update usage patterns
+        updateUsagePatterns(noteData);
+        
+        // Update order check timestamp if orders were checked
+        if (noteData.ordersChecked) {
+            localStorage.setItem(STORAGE_KEYS.LAST_ORDER_CHECK, Date.now().toString());
+        }
+        
+        // Refresh statistics
+        loadUsageStatistics();
+        
+        return true;
+    } catch (error) {
+        if (error.name === 'QuotaExceededError') {
+            console.error('LocalStorage quota exceeded');
+            showStorageError('Storage full. Consider clearing old notes from browser data.');
+        } else {
+            console.error('Failed to save note to history:', error);
+        }
+        return false;
     }
-    
-    localStorage.setItem(STORAGE_KEYS.NOTE_HISTORY, JSON.stringify(history));
-    
-    // Update usage patterns
-    updateUsagePatterns(noteData);
-    
-    // Update order check timestamp if orders were checked
-    if (noteData.ordersChecked) {
-        localStorage.setItem(STORAGE_KEYS.LAST_ORDER_CHECK, Date.now().toString());
-    }
-    
-    // Refresh statistics
-    loadUsageStatistics();
 }
 
+/**
+ * Updates usage patterns for clinical decision support
+ * @param {Object} noteData - The note data to track
+ * @returns {void}
+ */
 function updateUsagePatterns(noteData) {
-    const patterns = getUsagePatterns();
+    try {
+        if (!isLocalStorageAvailable()) {
+            return;
+        }
+        
+        const patterns = getUsagePatterns();
+        
+        patterns.totalNotes++;
+        patterns.problems[noteData.problem] = (patterns.problems[noteData.problem] || 0) + 1;
+        
+        if (noteData.ordersChecked) {
+            patterns.ordersChecked = (patterns.ordersChecked || 0) + 1;
+        }
     
-    patterns.totalNotes++;
-    patterns.problems[noteData.problem] = (patterns.problems[noteData.problem] || 0) + 1;
-    
-    if (noteData.ordersChecked) {
-        patterns.ordersChecked = (patterns.ordersChecked || 0) + 1;
+        // Track intervention patterns
+        const patternKey = `${noteData.problem}-${noteData.interventions.sort().join(',')}`;
+        const existing = patterns.repeatedPatterns.find(p => p.key === patternKey);
+        if (existing) {
+            existing.count++;
+        } else {
+            patterns.repeatedPatterns.push({
+                key: patternKey,
+                problem: noteData.problem,
+                count: 1
+            });
+        }
+        
+        // Sort repeated patterns by count
+        patterns.repeatedPatterns.sort((a, b) => b.count - a.count);
+        
+        localStorage.setItem(STORAGE_KEYS.USAGE_PATTERNS, JSON.stringify(patterns));
+    } catch (error) {
+        console.error('Failed to update usage patterns:', error);
+        // Non-critical, fail silently
     }
-    
-    // Track intervention patterns
-    const patternKey = `${noteData.problem}-${noteData.interventions.sort().join(',')}`;
-    const existing = patterns.repeatedPatterns.find(p => p.key === patternKey);
-    if (existing) {
-        existing.count++;
-    } else {
-        patterns.repeatedPatterns.push({
-            key: patternKey,
-            problem: noteData.problem,
-            count: 1
-        });
-    }
-    
-    // Sort repeated patterns by count
-    patterns.repeatedPatterns.sort((a, b) => b.count - a.count);
-    
-    localStorage.setItem(STORAGE_KEYS.USAGE_PATTERNS, JSON.stringify(patterns));
 }
 
+/**
+ * Retrieves usage patterns from localStorage
+ * @returns {{totalNotes: number, problems: Object, ordersChecked: number, repeatedPatterns: Array}} Usage patterns object
+ */
 function getUsagePatterns() {
     const defaultPatterns = {
         totalNotes: 0,
@@ -823,38 +1026,62 @@ function getUsagePatterns() {
         repeatedPatterns: []
     };
     
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.USAGE_PATTERNS) || JSON.stringify(defaultPatterns));
+    try {
+        if (!isLocalStorageAvailable()) {
+            return defaultPatterns;
+        }
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.USAGE_PATTERNS) || JSON.stringify(defaultPatterns));
+    } catch (error) {
+        console.error('Failed to retrieve usage patterns:', error);
+        return defaultPatterns;
+    }
 }
 
+/**
+ * Loads and displays usage statistics in the UI
+ * @returns {void}
+ */
 function loadUsageStatistics() {
-    const patterns = getUsagePatterns();
-    const statsContent = document.getElementById('statsContent');
+    try {
+        const patterns = getUsagePatterns();
+        const statsContent = document.getElementById('statsContent');
+        
+        if (!statsContent) return;
     
-    if (patterns.totalNotes === 0) {
-        statsContent.innerHTML = '<p class="info-text">Pattern tracking will appear after you create a few notes.</p>';
-        return;
+        if (patterns.totalNotes === 0) {
+            statsContent.innerHTML = '<p class="info-text">Pattern tracking will appear after you create a few notes.</p>';
+            return;
+        }
+        
+        let html = `<p><strong>Total notes created:</strong> ${patterns.totalNotes}</p>`;
+        
+        html += '<div class="stat-item"><strong>Most Common Problems:</strong><br>';
+        const sortedProblems = Object.entries(patterns.problems).sort((a, b) => b[1] - a[1]);
+        sortedProblems.forEach(([problem, count]) => {
+            const percent = Math.round((count / patterns.totalNotes) * 100);
+            html += `${sanitizeHTML(problems[problem].name)}: ${count} (${percent}%)<br>`;
+        });
+        html += '</div>';
+        
+        const ordersPercent = Math.round((patterns.ordersChecked / patterns.totalNotes) * 100);
+        html += `<div class="stat-item"><strong>Orders verification rate:</strong> ${ordersPercent}%</div>`;
+        
+        statsContent.innerHTML = html;
+        
+        // Recheck CDS alerts based on updated patterns
+        checkClinicalDecisionSupport();
+    } catch (error) {
+        console.error('Failed to load usage statistics:', error);
     }
-    
-    let html = `<p><strong>Total notes created:</strong> ${patterns.totalNotes}</p>`;
-    
-    html += '<div class="stat-item"><strong>Most Common Problems:</strong><br>';
-    const sortedProblems = Object.entries(patterns.problems).sort((a, b) => b[1] - a[1]);
-    sortedProblems.forEach(([problem, count]) => {
-        const percent = Math.round((count / patterns.totalNotes) * 100);
-        html += `${problems[problem].name}: ${count} (${percent}%)<br>`;
-    });
-    html += '</div>';
-    
-    const ordersPercent = Math.round((patterns.ordersChecked / patterns.totalNotes) * 100);
-    html += `<div class="stat-item"><strong>Orders verification rate:</strong> ${ordersPercent}%</div>`;
-    
-    statsContent.innerHTML = html;
-    
-    // Recheck CDS alerts based on updated patterns
-    checkClinicalDecisionSupport();
 }
 
 // Safety warning functions
+/**
+ * Displays a carbohydrate warning alert
+ * @param {string} level - 'warning' or 'critical'
+ * @param {number} value - The carb value in grams
+ * @returns {void}
+ */
 function showCarbWarning(level, value) {
     const alertsDiv = document.getElementById('cdsAlerts');
     // Remove any existing carb warnings
@@ -865,7 +1092,7 @@ function showCarbWarning(level, value) {
     alert.className = level === 'critical' ? 'cds-alert warning carb-warning' : 'cds-alert info carb-warning';
     
     if (level === 'critical') {
-        alert.innerHTML = `<strong>⚠️ Critical: Carbohydrate Value</strong><p>${value}g exceeds reasonable single-meal consumption (max 250g). Value capped at 250g. Verify this is not a data entry error.</p>`;
+        alert.innerHTML = `<strong>⚠️ Critical: Carbohydrate Value</strong><p>${value}g exceeds reasonable single-meal consumption (max ${CLINICAL_LIMITS.CARB_CRITICAL_THRESHOLD}g). Value capped at ${CLINICAL_LIMITS.CARB_CRITICAL_THRESHOLD}g. Verify this is not a data entry error.</p>`;
     } else {
         alert.innerHTML = `<strong>⚠️ High Carbohydrate Intake</strong><p>${value}g is unusually high for a single meal (typical range: 30-100g). Verify accuracy and document reason if correct.</p>`;
     }
@@ -873,6 +1100,11 @@ function showCarbWarning(level, value) {
     alertsDiv.insertBefore(alert, alertsDiv.firstChild);
 }
 
+/**
+ * Displays an insulin dose warning alert
+ * @param {number} value - The insulin dose in units
+ * @returns {void}
+ */
 function showInsulinWarning(value) {
     const alertsDiv = document.getElementById('cdsAlerts');
     const existingWarning = alertsDiv.querySelector('.insulin-warning');
@@ -885,6 +1117,12 @@ function showInsulinWarning(value) {
     alertsDiv.insertBefore(alert, alertsDiv.firstChild);
 }
 
+/**
+ * Displays a blood glucose warning alert
+ * @param {string} level - 'critical-low' or 'critical-high'
+ * @param {number} value - The BG value in mg/dL
+ * @returns {void}
+ */
 function showBGWarning(level, value) {
     const alertsDiv = document.getElementById('cdsAlerts');
     const existingWarning = alertsDiv.querySelector('.bg-warning');
