@@ -1,0 +1,19 @@
+{
+  "name": "pie-note-builder",
+  "version": "1.0.0",
+  "description": "Problem → Intervention → Evaluation Documentation Tool for School Nurses",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8080 || python -m http.server 8080",
+    "dev": "python3 -m http.server 8080",
+    "open": "python3 -m http.server 8080 & sleep 2 && xdg-open http://localhost:8080 || open http://localhost:8080"
+  },
+  "keywords": [
+    "school-nursing",
+    "clinical-documentation",
+    "PIE-notes",
+    "healthcare"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -96,11 +96,11 @@ const problems = {
             { id: "insulin-admin", label: "Insulin administered", hasInput: true, inputLabel: "Units given", inputType: "number", min: 0, max: 100, step: 0.5 },
             { id: "insulin-type", label: "Type of insulin", options: ["Rapid-acting (Humalog/Novolog)", "Short-acting (Regular)", "Intermediate-acting (NPH)", "Long-acting (Lantus/Levemir)", "Per student's orders", "Other"] },
             { id: "insulin-delivery", label: "Insulin delivery method", options: ["Insulin pump", "Insulin pen", "Syringe", "Pre-filled syringe from parent"] },
-            { id: "injection-site", label: "Injection site (if applicable)", options: ["Abdomen", "Upper arm", "Thigh", "Buttocks", "Via pump", "N/A"] },
+            { id: "injection-site", label: "Injection site (if applicable)", options: ["Abdomen", "Right upper arm", "Left upper arm", "Right thigh", "Left thigh", "Buttocks", "Via pump", "N/A"] },
             { id: "insulin-reason", label: "Reason for insulin", options: ["Lunch coverage", "Correction dose", "Snack coverage", "High BG"] },
-            { id: "snack-provided", label: "Snack/glucose provided for hypoglycemia", hasInput: true, inputLabel: "What was provided" },
+            { id: "snack-provided", label: "Snack/glucose provided for hypoglycemia", options: ["None needed", "15g glucose tablets", "4 oz juice (15g carbs)", "4 oz regular soda (15g carbs)", "Graham crackers (3 squares)", "8 oz milk (12g carbs)", "Small fruit (15g carbs)", "Honey/sugar packet", "Other (specify)"] },
             { id: "orders-checked", label: "Medical orders reviewed and followed", checkbox: true },
-            { id: "parent-contact", label: "Parent/guardian contacted", hasInput: true, inputLabel: "Reason for contact" }
+            { id: "parent-contact", label: "Parent/guardian contacted", options: ["Not contacted", "Critical BG reading", "Hypoglycemia intervention", "Hyperglycemia concern", "Insulin administration issue", "Student request", "Medication side effects", "Injury requiring follow-up", "Illness symptoms", "Other (specify)"] }
         ],
         evaluations: [
             { id: "standard-eval", label: "Standard evaluation", checkbox: true, defaultText: "Tolerated well. No adverse effects noted. Student returned to class." },
@@ -113,16 +113,17 @@ const problems = {
         name: "Medication Administration",
         interventions: [
             { id: "med-name", label: "Medication name", hasInput: true, inputLabel: "Medication" },
-            { id: "med-class", label: "Medication class", options: ["ADHD stimulant", "ADHD non-stimulant", "Antibiotic", "Asthma/bronchodilator", "Antihistamine/allergy", "Anti-seizure", "Pain reliever", "GI/anti-nausea", "Psychiatric/mood", "Cardiac", "Other"] },
-            { id: "dose", label: "Dose administered", hasInput: true, inputLabel: "Dose" },
+            { id: "med-class", label: "Medication class", options: ["Stimulant (ADHD)", "Non-stimulant (ADHD)", "Antibiotic", "Bronchodilator/Inhaled steroid", "Antihistamine", "Antiepileptic/Anticonvulsant", "Analgesic (pain)", "Antiemetic/GI medication", "Antidepressant", "Antianxiety", "Antipsychotic", "Emergency epinephrine", "Antiinflammatory (NSAID)", "Antacid/Reflux medication", "Other"] },
+            { id: "dose", label: "Dose administered", hasInput: true, inputLabel: "Amount" },
+            { id: "dose-unit", label: "Dose unit", options: ["mg", "mcg", "mL", "g", "units", "puffs", "sprays", "tablets", "capsules"] },
             { id: "route", label: "Route", options: ["PO (by mouth)", "Inhaled", "Topical", "Sublingual", "Subcutaneous", "Nasal", "Other"] },
-            { id: "reason", label: "Reason for medication", hasInput: true, inputLabel: "Indication" },
+            { id: "reason", label: "Reason for medication", options: ["ADHD symptom management", "Seizure prevention", "Asthma/breathing support", "Allergy symptoms", "Pain relief", "Infection treatment", "Nausea/GI symptoms", "Anxiety management", "Blood pressure control", "Diabetes management", "Per medical orders", "Other (specify)"] },
             { id: "prn-reason", label: "PRN reason (if applicable)", options: ["N/A - Scheduled dose", "Pain", "Fever", "Asthma symptoms/wheezing", "Anxiety", "Nausea", "Allergic reaction", "Breakthrough symptoms", "Other"] },
-            { id: "time-since-last", label: "Time since last dose", hasInput: true, inputLabel: "Hours since last dose (if known)" },
+            { id: "time-since-last", label: "Time since last dose", options: ["Unknown/Not applicable", "Less than 2 hours", "2-4 hours", "4-6 hours", "6-8 hours", "8-12 hours", "More than 12 hours", "First dose of day"] },
             { id: "dose-verification", label: "Dose calculation verified", checkbox: true },
             { id: "witnessed-admin", label: "Witnessed student take medication", checkbox: true },
             { id: "orders-checked", label: "Medical orders reviewed and verified", checkbox: true },
-            { id: "parent-contact", label: "Parent/guardian contacted", hasInput: true, inputLabel: "Reason for contact" }
+            { id: "parent-contact", label: "Parent/guardian contacted", options: ["Not contacted", "Critical BG reading", "Hypoglycemia intervention", "Hyperglycemia concern", "Insulin administration issue", "Student request", "Medication side effects", "Injury requiring follow-up", "Illness symptoms", "Other (specify)"] }
         ],
         evaluations: [
             { id: "standard-eval", label: "Standard evaluation", checkbox: true, defaultText: "Tolerated well. No adverse effects noted. Student returned to class." },
@@ -135,19 +136,19 @@ const problems = {
         name: "First Aid / Minor Injury",
         interventions: [
             { id: "injury-type", label: "Type of injury/complaint", options: ["Abrasion/scrape", "Bump/contusion", "Minor cut/laceration", "Headache", "Stomachache", "Nosebleed", "Dental injury", "Sprain/strain", "Insect bite/sting", "Rash/skin irritation", "Other"] },
-            { id: "location", label: "Location of injury", hasInput: true, inputLabel: "Body part/location" },
+            { id: "location", label: "Location of injury", options: ["Head", "Forehead", "Face", "Eye", "Ear", "Nose", "Mouth/lips", "Teeth/jaw", "Neck", "Shoulder", "Upper arm", "Elbow", "Forearm", "Wrist", "Hand", "Finger(s)", "Chest", "Abdomen", "Back", "Hip", "Thigh", "Knee", "Lower leg", "Ankle", "Foot", "Toe(s)", "Multiple locations", "Other (specify)"] },
             { id: "injury-occurred", label: "How injury occurred", options: ["Playground", "PE class", "Classroom", "Hallway", "Cafeteria", "Recess", "Sports/athletics", "Stairs", "Bathroom", "Bus area", "Student reports unknown", "Other"] },
             { id: "injury-mechanism", label: "Mechanism of injury", options: ["Fall from height", "Fall on same level", "Collision with person", "Collision with object", "Struck by object", "Contact with sharp object", "Twisting motion", "Non-traumatic/spontaneous", "Unknown", "Other"] },
             { id: "initial-assessment", label: "Initial assessment", options: ["Alert and oriented", "No visible distress", "Mild distress", "Moderate distress", "Denies loss of consciousness", "Brief LOC reported", "Other"] },
             { id: "ice-applied", label: "Ice pack applied", checkbox: true },
-            { id: "ice-duration", label: "Ice application duration", hasInput: true, inputLabel: "Duration (minutes)" },
+            { id: "ice-duration", label: "Ice application duration", options: ["N/A", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "30 minutes"] },
             { id: "bandaid-applied", label: "Band-aid/dressing applied", checkbox: true },
             { id: "wound-care", label: "Wound care performed", options: ["N/A", "Cleaned with soap and water", "Cleaned with saline", "Antiseptic applied", "Pressure applied for bleeding control", "Gauze dressing applied", "Other"] },
-            { id: "rest-provided", label: "Rest period provided", hasInput: true, inputLabel: "Duration (minutes)" },
+            { id: "rest-provided", label: "Rest period provided", options: ["N/A", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "30 minutes", "Remained until dismissal"] },
             { id: "vital-signs", label: "Vital signs assessed", hasInput: true, inputLabel: "Results (if applicable)" },
             { id: "head-injury-screen", label: "Head injury screening", options: ["N/A - Not head injury", "No signs of concussion", "Concussion symptoms present", "LOC reported", "Vomiting present", "Confusion noted", "Headache persists", "Refer for evaluation"] },
             { id: "return-to-activity", label: "Return to activity status", options: ["Returned to class immediately", "Returned to class after rest", "Returned to class with restrictions", "Unable to return to activity", "Parent pickup arranged", "Referred for further evaluation"] },
-            { id: "parent-contact", label: "Parent/guardian contacted", hasInput: true, inputLabel: "Reason for contact" }
+            { id: "parent-contact", label: "Parent/guardian contacted", options: ["Not contacted", "Critical BG reading", "Hypoglycemia intervention", "Hyperglycemia concern", "Insulin administration issue", "Student request", "Medication side effects", "Injury requiring follow-up", "Illness symptoms", "Other (specify)"] }
         ],
         evaluations: [
             { id: "standard-eval", label: "Standard evaluation", checkbox: true, defaultText: "Tolerated well. No adverse effects noted. Student returned to class." },
@@ -179,17 +180,471 @@ let currentState = {
 const STORAGE_KEYS = {
     USAGE_PATTERNS: 'pie_usage_patterns',
     NOTE_HISTORY: 'pie_note_history',
-    LAST_ORDER_CHECK: 'pie_last_order_check'
+    LAST_ORDER_CHECK: 'pie_last_order_check',
+    DARK_MODE: 'pie_dark_mode',
+    AUTO_SAVE: 'pie_auto_save'
 };
+
+// Auto-save state
+let autoSaveTimer = null;
+let lastAutoSave = null;
+
+/**
+ * Sets up skip link to smoothly scroll to note preview
+ * @returns {void}
+ */
+function setupSkipLink() {
+    const skipLink = document.querySelector('.skip-link');
+    if (skipLink) {
+        skipLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const notePreview = document.getElementById('notePreview');
+            if (notePreview && notePreview.style.display !== 'none') {
+                notePreview.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Focus on the copy button for keyboard accessibility
+                setTimeout(() => {
+                    const copyBtn = document.getElementById('copyBtn');
+                    if (copyBtn) copyBtn.focus();
+                }, 500);
+            }
+        });
+    }
+}
+
+/**
+ * Checks if any form fields have data entered
+ * @returns {boolean} - True if any fields have data
+ */
+function hasDataEntered() {
+    // Check if a problem is selected
+    if (currentState.problem) return true;
+
+    // Check if any interventions have values
+    if (Object.keys(currentState.interventions).length > 0) {
+        // Check if any values are actually filled (not just empty strings or false)
+        for (const key in currentState.interventions) {
+            const value = currentState.interventions[key];
+            if (value && value !== '' && value !== false) {
+                return true;
+            }
+        }
+    }
+
+    // Check if any evaluation fields have values
+    if (Object.keys(currentState.evaluation).length > 0) {
+        for (const key in currentState.evaluation) {
+            const value = currentState.evaluation[key];
+            if (value && value !== '' && value !== false) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Sets up home link with data loss warning
+ * @returns {void}
+ */
+function setupHomeLink() {
+    const homeLink = document.getElementById('homeLink');
+    if (homeLink) {
+        homeLink.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            if (hasDataEntered()) {
+                if (confirm('⚠️ Warning: You have unsaved data.\n\nAll entered information will be lost if you start over.\n\nClick OK to reset and start a new note, or Cancel to continue editing.')) {
+                    // User confirmed, reset the form
+                    const resetBtn = document.getElementById('resetBtn');
+                    if (resetBtn) {
+                        resetBtn.click();
+                    }
+                }
+                // If cancelled, do nothing (stay on current state)
+            } else {
+                // No data entered, safe to reset
+                const resetBtn = document.getElementById('resetBtn');
+                if (resetBtn) {
+                    resetBtn.click();
+                }
+            }
+        });
+    }
+}
+
+/**
+ * Sets up privacy filter button to blur sensitive information
+ * @returns {void}
+ */
+function setupPrivacyFilter() {
+    const privacyBtn = document.getElementById('privacyFilterBtn');
+    if (privacyBtn) {
+        privacyBtn.addEventListener('click', () => {
+            const isActive = document.body.classList.toggle('privacy-active');
+            privacyBtn.setAttribute('aria-pressed', isActive.toString());
+
+            if (isActive) {
+                privacyBtn.querySelector('.utility-text').textContent = 'Privacy ON';
+                announceToScreenReader('Privacy filter activated. Sensitive information is now hidden.');
+            } else {
+                privacyBtn.querySelector('.utility-text').textContent = 'Privacy Filter';
+                announceToScreenReader('Privacy filter deactivated. Sensitive information is now visible.');
+            }
+        });
+    }
+}
+
+/**
+ * Sets up dark mode toggle with localStorage persistence
+ * @returns {void}
+ */
+function setupDarkMode() {
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    if (!darkModeBtn) return;
+
+    // Load saved preference
+    const savedDarkMode = localStorage.getItem(STORAGE_KEYS.DARK_MODE);
+    const isDarkMode = savedDarkMode === 'true';
+
+    // Apply saved preference
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        darkModeBtn.setAttribute('aria-pressed', 'true');
+        darkModeBtn.querySelector('.utility-icon').textContent = '☀️';
+        darkModeBtn.querySelector('.utility-text').textContent = 'Light Mode';
+    }
+
+    // Toggle handler
+    darkModeBtn.addEventListener('click', () => {
+        const isActive = document.body.classList.toggle('dark-mode');
+        darkModeBtn.setAttribute('aria-pressed', isActive.toString());
+
+        if (isActive) {
+            darkModeBtn.querySelector('.utility-icon').textContent = '☀️';
+            darkModeBtn.querySelector('.utility-text').textContent = 'Light Mode';
+            localStorage.setItem(STORAGE_KEYS.DARK_MODE, 'true');
+            announceToScreenReader('Dark mode activated. Interface colors adjusted for low light viewing.');
+        } else {
+            darkModeBtn.querySelector('.utility-icon').textContent = '🌙';
+            darkModeBtn.querySelector('.utility-text').textContent = 'Dark Mode';
+            localStorage.setItem(STORAGE_KEYS.DARK_MODE, 'false');
+            announceToScreenReader('Light mode activated. Interface colors restored to default.');
+        }
+    });
+}
+
+/**
+ * Saves current state to localStorage for auto-recovery
+ * @returns {void}
+ */
+function saveAutoSave() {
+    if (!hasDataEntered()) {
+        // No data to save, clear any existing auto-save
+        clearAutoSave();
+        return;
+    }
+
+    const autoSaveData = {
+        problem: currentState.problem,
+        interventions: currentState.interventions,
+        evaluation: currentState.evaluation,
+        usePiePrefix: currentState.usePiePrefix,
+        timestamp: Date.now()
+    };
+
+    localStorage.setItem(STORAGE_KEYS.AUTO_SAVE, JSON.stringify(autoSaveData));
+    lastAutoSave = Date.now();
+
+    // Show auto-save indicator
+    showAutoSaveIndicator('saved');
+}
+
+/**
+ * Loads auto-saved data from localStorage
+ * @returns {Object|null} - Auto-saved data or null if none exists
+ */
+function loadAutoSave() {
+    const autoSaveJSON = localStorage.getItem(STORAGE_KEYS.AUTO_SAVE);
+    if (!autoSaveJSON) return null;
+
+    try {
+        const autoSaveData = JSON.parse(autoSaveJSON);
+
+        // Check if auto-save is less than 24 hours old
+        const age = Date.now() - autoSaveData.timestamp;
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+
+        if (age > maxAge) {
+            // Auto-save too old, clear it
+            clearAutoSave();
+            return null;
+        }
+
+        return autoSaveData;
+    } catch (e) {
+        console.error('Failed to load auto-save:', e);
+        clearAutoSave();
+        return null;
+    }
+}
+
+/**
+ * Clears auto-save data from localStorage
+ * @returns {void}
+ */
+function clearAutoSave() {
+    localStorage.removeItem(STORAGE_KEYS.AUTO_SAVE);
+    lastAutoSave = null;
+}
+
+/**
+ * Shows auto-save status indicator
+ * @param {string} status - 'saving' or 'saved'
+ * @returns {void}
+ */
+function showAutoSaveIndicator(status) {
+    const indicator = document.getElementById('autoSaveIndicator');
+    if (!indicator) return;
+
+    if (status === 'saving') {
+        indicator.classList.add('saving');
+        indicator.classList.remove('show');
+        indicator.querySelector('.auto-save-text').textContent = 'Saving...';
+        // Force reflow to restart animation
+        void indicator.offsetWidth;
+        indicator.classList.add('show');
+    } else if (status === 'saved') {
+        indicator.classList.remove('saving');
+        indicator.classList.remove('show');
+        indicator.querySelector('.auto-save-text').textContent = 'Auto-saved';
+        // Force reflow to restart animation
+        void indicator.offsetWidth;
+        indicator.classList.add('show');
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+            indicator.classList.remove('show');
+        }, 3000);
+    }
+}
+
+/**
+ * Triggers auto-save with debounce
+ * @returns {void}
+ */
+function triggerAutoSave() {
+    // Clear existing timer
+    if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+    }
+
+    // Show saving indicator immediately
+    showAutoSaveIndicator('saving');
+
+    // Set new timer for 2 seconds
+    autoSaveTimer = setTimeout(() => {
+        saveAutoSave();
+    }, 2000);
+}
+
+/**
+ * Restores auto-saved data and prompts user
+ * @returns {void}
+ */
+function restoreAutoSave() {
+    const autoSaveData = loadAutoSave();
+    if (!autoSaveData) return;
+
+    const timeAgo = getTimeAgo(autoSaveData.timestamp);
+
+    if (confirm(`📝 Auto-saved draft found!\n\nLast saved: ${timeAgo}\n\nWould you like to restore your previous work?\n\nClick OK to restore, or Cancel to start fresh.`)) {
+        // Restore the state
+        currentState.problem = autoSaveData.problem;
+        currentState.interventions = autoSaveData.interventions;
+        currentState.evaluation = autoSaveData.evaluation;
+        currentState.usePiePrefix = autoSaveData.usePiePrefix;
+
+        // Update UI to match restored state
+        if (autoSaveData.problem) {
+            // Click the appropriate problem button
+            const problemBtn = document.querySelector(`[data-problem="${autoSaveData.problem}"]`);
+            if (problemBtn) {
+                problemBtn.click();
+
+                // Restore field values after a delay to ensure form is loaded
+                setTimeout(() => {
+                    restoreFieldValues(autoSaveData);
+                    announceToScreenReader('Auto-saved draft restored successfully.');
+                }, 500);
+            }
+        }
+    } else {
+        // User declined, clear the auto-save
+        clearAutoSave();
+    }
+}
+
+/**
+ * Restores field values from auto-save data
+ * @param {Object} autoSaveData - The auto-saved data
+ * @returns {void}
+ */
+function restoreFieldValues(autoSaveData) {
+    // Restore intervention fields
+    for (const [key, value] of Object.entries(autoSaveData.interventions)) {
+        const field = document.getElementById(key);
+        if (field) {
+            if (field.type === 'checkbox') {
+                field.checked = value;
+            } else {
+                field.value = value;
+            }
+            // Trigger change event to update note
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+
+    // Restore evaluation fields
+    for (const [key, value] of Object.entries(autoSaveData.evaluation)) {
+        const field = document.getElementById(key);
+        if (field) {
+            if (field.type === 'checkbox') {
+                field.checked = value;
+            } else {
+                field.value = value;
+            }
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+
+    // Restore PIE prefix setting
+    const piePrefixCheckbox = document.getElementById('piePrefix');
+    if (piePrefixCheckbox) {
+        piePrefixCheckbox.checked = autoSaveData.usePiePrefix;
+    }
+}
+
+/**
+ * Gets human-readable time ago string
+ * @param {number} timestamp - Unix timestamp in milliseconds
+ * @returns {string} - Human-readable time ago
+ */
+function getTimeAgo(timestamp) {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+
+    if (seconds < 60) return 'just now';
+    if (seconds < 120) return '1 minute ago';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 7200) return '1 hour ago';
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
+    setupDarkMode();
     setupProblemButtons();
     setupResetButton();
+    setupKeyboardShortcuts();
+    setupSkipLink();
+    setupHomeLink();
+    setupPrivacyFilter();
     loadUsageStatistics();
     checkClinicalDecisionSupport();
+
+    // Check for auto-saved data after a brief delay
+    setTimeout(() => {
+        restoreAutoSave();
+    }, 1000);
+}
+
+/**
+ * Announces message to screen readers
+ * @param {string} message - The message to announce
+ * @param {number} delay - Delay before announcement in ms
+ * @returns {void}
+ */
+function announceToScreenReader(message, delay = 100) {
+    const announcer = document.getElementById('sr-announcements');
+    if (!announcer) return;
+
+    setTimeout(() => {
+        announcer.textContent = message;
+        // Clear after 3 seconds to allow for re-announcements
+        setTimeout(() => {
+            announcer.textContent = '';
+        }, 3000);
+    }, delay);
+}
+
+/**
+ * Sets up keyboard shortcuts for faster navigation and actions
+ * @returns {void}
+ */
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Check if Alt key is pressed
+        if (!e.altKey) return;
+
+        // Prevent default browser behavior for our shortcuts
+        const shortcutKeys = ['1', '2', '3', '4', 'c', 'r'];
+        if (shortcutKeys.includes(e.key.toLowerCase())) {
+            e.preventDefault();
+        }
+
+        // Alt+1-4: Select problem type
+        if (e.key === '1') {
+            const btn = document.querySelector('[data-problem="diabetes"]');
+            if (btn) {
+                btn.click();
+                btn.focus();
+                announceToScreenReader('Diabetes Management selected');
+            }
+        } else if (e.key === '2') {
+            const btn = document.querySelector('[data-problem="medication"]');
+            if (btn) {
+                btn.click();
+                btn.focus();
+                announceToScreenReader('Medication Administration selected');
+            }
+        } else if (e.key === '3') {
+            const btn = document.querySelector('[data-problem="first-aid"]');
+            if (btn) {
+                btn.click();
+                btn.focus();
+                announceToScreenReader('First Aid selected');
+            }
+        } else if (e.key === '4') {
+            const btn = document.querySelector('[data-problem="other"]');
+            if (btn) {
+                btn.click();
+                btn.focus();
+                announceToScreenReader('Other problem type selected');
+            }
+        }
+        // Alt+C: Copy to clipboard
+        else if (e.key.toLowerCase() === 'c') {
+            const copyBtn = document.getElementById('copyBtn');
+            if (copyBtn && copyBtn.offsetParent !== null) { // Check if visible
+                copyBtn.click();
+            }
+        }
+        // Alt+R: Reset form
+        else if (e.key.toLowerCase() === 'r') {
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn && resetBtn.offsetParent !== null) { // Check if visible
+                if (confirm('Reset form and start a new note?')) {
+                    resetBtn.click();
+                    announceToScreenReader('Form reset. Ready for new note.');
+                }
+            }
+        }
+    });
 }
 
 // Problem selection
@@ -197,11 +652,23 @@ function setupProblemButtons() {
     const buttons = document.querySelectorAll('.problem-btn');
     buttons.forEach(btn => {
         btn.addEventListener('click', () => {
+            const newProblem = btn.dataset.problem;
+
+            // Check if switching from a different problem type with data
+            if (currentState.problem && currentState.problem !== newProblem && hasDataEntered()) {
+                if (!confirm('⚠️ Warning: Switching problem categories will clear your current data.\n\nAll entered information will be lost.\n\nClick OK to switch categories, or Cancel to continue with the current category.')) {
+                    // User cancelled, don't switch
+                    return;
+                }
+                // User confirmed, clear current state
+                currentState.interventions = {};
+                currentState.evaluation = {};
+            }
+
             buttons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            const problem = btn.dataset.problem;
-            currentState.problem = problem;
-            displayInterventions(problem);
+            currentState.problem = newProblem;
+            displayInterventions(newProblem);
         });
     });
 }
@@ -215,58 +682,105 @@ function displayInterventions(problemKey) {
     const problem = problems[problemKey];
     const section = document.getElementById('interventionSection');
     const content = document.getElementById('interventionContent');
-    
+
     content.innerHTML = '';
-    
+
+    // High sensitivity field IDs
+    const highSensitivityFields = [
+        'bg-check', 'insulin-admin', 'insulin-type', 'insulin-delivery',
+        'injection-site', 'insulin-reason', 'orders-checked',
+        'med-name', 'dose', 'route', 'dose-verification', 'witnessed-admin'
+    ];
+
     problem.interventions.forEach(intervention => {
         const div = document.createElement('div');
         div.className = 'form-group';
-        
+
+        // Mark high sensitivity fields
+        if (highSensitivityFields.includes(intervention.id)) {
+            div.classList.add('sensitive-high');
+        }
+
         if (intervention.checkbox) {
             div.innerHTML = `
                 <div class="checkbox-item">
-                    <input type="checkbox" id="${intervention.id}" data-intervention="${intervention.id}">
+                    <input type="checkbox" id="${intervention.id}" data-intervention="${intervention.id}" aria-label="${intervention.label}">
                     <label for="${intervention.id}">${intervention.label}</label>
                 </div>
             `;
         } else if (intervention.options) {
             div.innerHTML = `
-                <label>${intervention.label}:</label>
-                <select id="${intervention.id}" data-intervention="${intervention.id}">
+                <label for="${intervention.id}">${intervention.label}:</label>
+                <select id="${intervention.id}" data-intervention="${intervention.id}" aria-label="${intervention.label}">
                     <option value="">-- Select --</option>
-                    ${intervention.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                    ${intervention.options.map(opt => `<option value="${sanitizeHTML(opt)}">${sanitizeHTML(opt)}</option>`).join('')}
                 </select>
+                <input type="text" id="${intervention.id}-other" data-intervention="${intervention.id}-other" placeholder="Please specify" style="display: none; margin-top: 8px;" aria-label="${intervention.label} - specify other">
             `;
         } else if (intervention.textarea) {
             div.innerHTML = `
-                <label>${intervention.label}:</label>
-                <textarea id="${intervention.id}" data-intervention="${intervention.id}" placeholder="${intervention.inputLabel}"></textarea>
+                <label for="${intervention.id}">${intervention.label}:</label>
+                <textarea id="${intervention.id}" data-intervention="${intervention.id}" placeholder="${intervention.inputLabel}" aria-label="${intervention.label}"></textarea>
             `;
         } else if (intervention.hasInput) {
             const inputType = intervention.inputType || 'text';
             const minAttr = intervention.min !== undefined ? `min="${intervention.min}"` : '';
             const maxAttr = intervention.max !== undefined ? `max="${intervention.max}"` : '';
             const stepAttr = intervention.step !== undefined ? `step="${intervention.step}"` : '';
-            
+            const ariaRequired = highSensitivityFields.includes(intervention.id) ? 'aria-required="true"' : '';
+
             div.innerHTML = `
-                <label>${intervention.label}:</label>
-                <input type="${inputType}" id="${intervention.id}" data-intervention="${intervention.id}" placeholder="${intervention.inputLabel}" ${minAttr} ${maxAttr} ${stepAttr}>
+                <label for="${intervention.id}">${intervention.label}:</label>
+                <input type="${inputType}" id="${intervention.id}" data-intervention="${intervention.id}" placeholder="${intervention.inputLabel}" ${minAttr} ${maxAttr} ${stepAttr} ${ariaRequired} aria-label="${intervention.label}">
             `;
         }
-        
+
         content.appendChild(div);
     });
-    
+
     // Add event listeners to track inputs
     content.querySelectorAll('[data-intervention]').forEach(el => {
-        el.addEventListener('change', updateInterventionState);
-        el.addEventListener('input', updateInterventionState);
+        // For critical clinical fields (BG, insulin), only validate on change/blur, not on every keystroke
+        if (el.id === 'bg-check' || el.id === 'insulin-admin' || el.id === 'carbs-consumed') {
+            el.addEventListener('change', updateInterventionState);
+            el.addEventListener('blur', updateInterventionState);
+        } else {
+            el.addEventListener('change', updateInterventionState);
+            el.addEventListener('input', updateInterventionState);
+        }
     });
-    
+
+    // Add listeners for "Other (specify)" handling
+    content.querySelectorAll('select[data-intervention]').forEach(select => {
+        select.addEventListener('change', function() {
+            const otherInput = document.getElementById(this.id + '-other');
+            if (otherInput) {
+                if (this.value && this.value.includes('Other (specify)')) {
+                    otherInput.style.display = 'block';
+                    otherInput.focus();
+                } else {
+                    otherInput.style.display = 'none';
+                    otherInput.value = '';
+                }
+            }
+        });
+    });
+
     section.style.display = 'block';
     displayEvaluation(problemKey);
     showFormatOptions();
     section.classList.add('fade-in');
+
+    // Announce to screen readers and focus first input
+    announceToScreenReader(`${problem.name} intervention form loaded. ${content.querySelectorAll('[data-intervention]').length} fields available.`);
+
+    // Focus first input after a brief delay to allow screen reader announcement
+    setTimeout(() => {
+        const firstInput = content.querySelector('select, input, textarea');
+        if (firstInput) {
+            firstInput.focus();
+        }
+    }, 300);
 }
 
 /**
@@ -350,6 +864,7 @@ function updateInterventionState(e) {
     
     currentState.interventions[id] = value;
     generateNote();
+    triggerAutoSave();
 }
 
 /**
@@ -464,6 +979,7 @@ function updateEvaluationState(e) {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     currentState.evaluation[id] = value;
     generateNote();
+    triggerAutoSave();
 }
 
 // Show format options section
@@ -479,6 +995,20 @@ function showFormatOptions() {
     
     section.style.display = 'block';
     section.classList.add('fade-in');
+}
+
+/**
+ * Gets the display value for a field, handling "Other (specify)" options
+ * @param {string} fieldId - The field ID
+ * @param {string} value - The current field value
+ * @returns {string} - The display value to use in the note
+ */
+function getDisplayValue(fieldId, value) {
+    if (value && value.includes('Other (specify)')) {
+        const otherValue = currentState.interventions[fieldId + '-other'];
+        return otherValue || value;
+    }
+    return value;
 }
 
 /**
@@ -545,14 +1075,14 @@ function generateNote() {
         problemNarrative = problemNarrative.replace(/\s+/g, ' ').replace(/\.\s+\./g, '.');
     } else if (currentState.problem === 'medication') {
         const medName = currentState.interventions['med-name'];
-        const reason = currentState.interventions['reason'];
+        const reason = getDisplayValue('reason', currentState.interventions['reason']);
         const medClass = currentState.interventions['med-class'];
         const prnReason = currentState.interventions['prn-reason'];
-        
+
         let opening = 'Student presented for medication administration';
-        
+
         if (medName && reason) {
-            problemNarrative = `${opening}. ${medName} needed for ${reason}`;
+            problemNarrative = `${opening}. ${medName} needed for ${reason.toLowerCase()}`;
             if (medClass && medClass !== '') {
                 problemNarrative += ` (${medClass.toLowerCase()})`;
             }
@@ -571,15 +1101,15 @@ function generateNote() {
         }
     } else if (currentState.problem === 'first-aid') {
         const injuryType = currentState.interventions['injury-type'];
-        const location = currentState.interventions['location'];
+        const location = getDisplayValue('location', currentState.interventions['location']);
         const occurred = currentState.interventions['injury-occurred'];
         const mechanism = currentState.interventions['injury-mechanism'];
         const assessment = currentState.interventions['initial-assessment'];
-        
+
         let opening = 'Student presented to health office';
-        
+
         if (injuryType && location) {
-            problemNarrative = `${opening} with ${injuryType.toLowerCase()} to ${location}`;
+            problemNarrative = `${opening} with ${injuryType.toLowerCase()} to ${location.toLowerCase()}`;
         } else if (injuryType) {
             problemNarrative = `${opening} with ${injuryType.toLowerCase()}`;
         } else {
@@ -608,81 +1138,174 @@ function generateNote() {
     
     noteText += problemPrefix + problemNarrative + '\n\n';
     
-    // INTERVENTION - Build narrative
+    // INTERVENTION - Build narrative with flowing sentences
     const interventionPrefix = usePrefix ? 'I: ' : '';
-    const interventionNarrative = [];
-    
-    problem.interventions.forEach(intervention => {
-        const value = currentState.interventions[intervention.id];
-        if (!value || value === '' || value === false) return;
-        
-        // Skip items already mentioned in problem section or BG source items
-        if (intervention.id === 'bg-check' || intervention.id === 'carbs-consumed' || 
-            intervention.id === 'bg-source-cgm' || intervention.id === 'bg-source-fingerstick' ||
-            intervention.id === 'visit-reason' || intervention.id === 'student-symptoms' ||
-            intervention.id === 'med-name' || intervention.id === 'reason' || intervention.id === 'med-class' || 
-            intervention.id === 'prn-reason' || intervention.id === 'injury-type' || intervention.id === 'location' ||
-            intervention.id === 'injury-occurred' || intervention.id === 'injury-mechanism' || 
-            intervention.id === 'initial-assessment') return;
-        
-        if (intervention.checkbox && value === true) {
-            interventionNarrative.push(intervention.label.toLowerCase());
-        } else if (intervention.hasInput && value) {
-            if (intervention.id === 'insulin-admin') {
-                interventionNarrative.push(`${value} units of insulin administered`);
-            } else if (intervention.id === 'dose') {
-                interventionNarrative.push(`dose of ${value} administered`);
-            } else if (intervention.id === 'route') {
-                interventionNarrative.push(`given ${value}`);
-            } else if (intervention.id === 'rest-provided') {
-                interventionNarrative.push(`${value} minutes of rest provided`);
-            } else if (intervention.id === 'snack-provided') {
-                interventionNarrative.push(`${value} provided for hypoglycemia management`);
-            } else if (intervention.id === 'vital-signs') {
-                interventionNarrative.push(`vital signs assessed: ${value}`);
-            } else if (intervention.id === 'time-since-last') {
-                interventionNarrative.push(`${value} hours since last dose`);
-            } else if (intervention.id === 'ice-duration') {
-                interventionNarrative.push(`ice applied for ${value} minutes`);
-            } else if (intervention.id === 'parent-contact') {
-                interventionNarrative.push(`parent/guardian contacted regarding ${value}`);
-            } else {
-                interventionNarrative.push(`${intervention.label.toLowerCase()}: ${value}`);
+    const interventionSentences = [];
+
+    // Build context-aware narrative based on problem type
+    if (currentState.problem === 'diabetes') {
+        // Insulin administration sentence
+        const insulinAmount = currentState.interventions['insulin-admin'];
+        const insulinType = currentState.interventions['insulin-type'];
+        const insulinDelivery = currentState.interventions['insulin-delivery'];
+        const injectionSite = currentState.interventions['injection-site'];
+        const insulinReason = currentState.interventions['insulin-reason'];
+
+        if (insulinAmount) {
+            let insulinSentence = `Administered ${insulinAmount} units of insulin`;
+            if (insulinType) {
+                insulinSentence += ` (${insulinType})`;
             }
-        } else if (intervention.options && value) {
-            if (intervention.id === 'insulin-reason') {
-                interventionNarrative.push(`indication: ${value.toLowerCase()}`);
-            } else if (intervention.id === 'insulin-type') {
-                interventionNarrative.push(`insulin type: ${value}`);
-            } else if (intervention.id === 'insulin-delivery') {
-                interventionNarrative.push(`administered via ${value.toLowerCase()}`);
-            } else if (intervention.id === 'injection-site') {
-                if (value !== 'N/A' && value !== 'Via pump') {
-                    interventionNarrative.push(`injection site: ${value.toLowerCase()}`);
-                }
-            } else if (intervention.id === 'wound-care') {
-                if (value !== 'N/A' && value !== 'Other') {
-                    interventionNarrative.push(value.toLowerCase());
-                }
-            } else if (intervention.id === 'head-injury-screen') {
-                if (value !== 'N/A - Not head injury') {
-                    interventionNarrative.push(`head injury screening: ${value.toLowerCase()}`);
-                }
-            } else if (intervention.id === 'return-to-activity') {
-                interventionNarrative.push(value.toLowerCase());
-            } else if (intervention.id === 'route') {
-                interventionNarrative.push(`route: ${value}`);
+            if (insulinDelivery) {
+                insulinSentence += ` via ${insulinDelivery.toLowerCase()}`;
+            }
+            if (injectionSite && injectionSite !== 'N/A' && injectionSite !== 'Via pump') {
+                insulinSentence += ` to ${injectionSite.toLowerCase()}`;
+            }
+            if (insulinReason) {
+                insulinSentence += ` for ${insulinReason.toLowerCase()}`;
+            }
+            interventionSentences.push(insulinSentence);
+        }
+
+        // Snack/treatment sentence
+        const snack = getDisplayValue('snack-provided', currentState.interventions['snack-provided']);
+        if (snack && snack !== 'None needed') {
+            interventionSentences.push(`Provided ${snack.toLowerCase()} for hypoglycemia management`);
+        }
+
+        // Orders and parent contact
+        if (currentState.interventions['orders-checked']) {
+            interventionSentences.push('Medical orders reviewed and followed');
+        }
+
+        const parentContact = getDisplayValue('parent-contact', currentState.interventions['parent-contact']);
+        if (parentContact && parentContact !== 'Not contacted') {
+            interventionSentences.push(`Parent/guardian contacted regarding ${parentContact.toLowerCase()}`);
+        }
+
+    } else if (currentState.problem === 'medication') {
+        // Medication administration sentence
+        const dose = currentState.interventions['dose'];
+        const doseUnit = currentState.interventions['dose-unit'];
+        const route = currentState.interventions['route'];
+        const timeSinceLast = getDisplayValue('time-since-last', currentState.interventions['time-since-last']);
+
+        if (dose) {
+            let medSentence = `Administered dose of ${dose}`;
+            if (doseUnit) {
+                medSentence += ` ${doseUnit}`;
+            }
+            if (route) {
+                medSentence += ` ${route}`;
+            }
+            if (timeSinceLast && timeSinceLast !== 'Unknown/Not applicable') {
+                medSentence += `. Time since last dose: ${timeSinceLast.toLowerCase()}`;
+            }
+            interventionSentences.push(medSentence);
+        }
+
+        // Verification and safety checks
+        const verifications = [];
+        if (currentState.interventions['dose-verification']) {
+            verifications.push('dose calculation verified');
+        }
+        if (currentState.interventions['witnessed-admin']) {
+            verifications.push('witnessed student take medication');
+        }
+        if (currentState.interventions['orders-checked']) {
+            verifications.push('medical orders reviewed and verified');
+        }
+
+        if (verifications.length > 0) {
+            const verificationText = verifications.join(', ');
+            interventionSentences.push(verificationText.charAt(0).toUpperCase() + verificationText.slice(1));
+        }
+
+        const parentContact = getDisplayValue('parent-contact', currentState.interventions['parent-contact']);
+        if (parentContact && parentContact !== 'Not contacted') {
+            interventionSentences.push(`Parent/guardian contacted regarding ${parentContact.toLowerCase()}`);
+        }
+
+    } else if (currentState.problem === 'first-aid') {
+        // Treatment actions
+        const treatments = [];
+
+        const iceDuration = getDisplayValue('ice-duration', currentState.interventions['ice-duration']);
+        if (currentState.interventions['ice-applied'] || (iceDuration && iceDuration !== 'N/A')) {
+            if (iceDuration && iceDuration !== 'N/A') {
+                treatments.push(`applied ice pack for ${iceDuration.toLowerCase()}`);
             } else {
-                interventionNarrative.push(value.toLowerCase());
+                treatments.push('applied ice pack');
             }
         }
-    });
-    
-    if (interventionNarrative.length > 0) {
-        // Capitalize first letter and format as sentence
-        let interventionText = interventionNarrative.join(', ');
-        interventionText = interventionText.charAt(0).toUpperCase() + interventionText.slice(1);
-        noteText += interventionPrefix + interventionText + '.\n\n';
+
+        const woundCare = currentState.interventions['wound-care'];
+        if (woundCare && woundCare !== 'N/A') {
+            treatments.push(woundCare.toLowerCase());
+        }
+
+        if (currentState.interventions['bandaid-applied']) {
+            treatments.push('applied bandage/dressing');
+        }
+
+        if (treatments.length > 0) {
+            const treatmentText = treatments.join(', then ');
+            interventionSentences.push(treatmentText.charAt(0).toUpperCase() + treatmentText.slice(1));
+        }
+
+        // Rest and vital signs
+        const restProvided = getDisplayValue('rest-provided', currentState.interventions['rest-provided']);
+        if (restProvided && restProvided !== 'N/A') {
+            interventionSentences.push(`Provided ${restProvided.toLowerCase()} of rest`);
+        }
+
+        const vitalSigns = currentState.interventions['vital-signs'];
+        if (vitalSigns) {
+            interventionSentences.push(`Vital signs assessed: ${vitalSigns}`);
+        }
+
+        // Head injury screening
+        const headInjury = currentState.interventions['head-injury-screen'];
+        if (headInjury && headInjury !== 'N/A - Not head injury') {
+            interventionSentences.push(`Head injury screening performed: ${headInjury.toLowerCase()}`);
+        }
+
+        // Return to activity
+        const returnStatus = currentState.interventions['return-to-activity'];
+        if (returnStatus) {
+            interventionSentences.push(returnStatus);
+        }
+
+        // Parent contact
+        const parentContact = getDisplayValue('parent-contact', currentState.interventions['parent-contact']);
+        if (parentContact && parentContact !== 'Not contacted') {
+            interventionSentences.push(`Parent/guardian contacted regarding ${parentContact.toLowerCase()}`);
+        }
+
+    } else {
+        // For "other" problem type, use the custom intervention text
+        const customIntervention = currentState.interventions['custom-intervention'];
+        if (customIntervention) {
+            interventionSentences.push(customIntervention);
+        }
+    }
+
+    if (interventionSentences.length > 0) {
+        // Join sentences with proper punctuation
+        let interventionText = interventionSentences[0];
+        for (let i = 1; i < interventionSentences.length; i++) {
+            // Add period if previous sentence doesn't end with punctuation
+            if (!interventionText.match(/[.!?]$/)) {
+                interventionText += '.';
+            }
+            interventionText += ' ' + interventionSentences[i];
+        }
+        // Ensure final period
+        if (!interventionText.match(/[.!?]$/)) {
+            interventionText += '.';
+        }
+        noteText += interventionPrefix + interventionText + '\n\n';
     } else {
         noteText += interventionPrefix + '(Complete intervention details)\n\n';
     }
@@ -748,10 +1371,17 @@ function generateNote() {
     // Display the note
     const noteContent = document.getElementById('noteContent');
     const notePreview = document.getElementById('notePreview');
+    const wasHidden = notePreview.style.display === 'none';
+
     noteContent.textContent = noteText;
     notePreview.style.display = 'block';
     notePreview.classList.add('fade-in');
-    
+
+    // Announce to screen readers only when note is first generated, not on every update
+    if (wasHidden) {
+        announceToScreenReader('PIE note generated successfully. Review the note below and copy when ready.');
+    }
+
     setupCopyButton(noteText);
 }
 
@@ -775,16 +1405,22 @@ function formatTime(timeString) {
 function setupCopyButton(noteText) {
     const copyBtn = document.getElementById('copyBtn');
     const feedback = document.getElementById('copyFeedback');
-    
+
     copyBtn.onclick = async () => {
         try {
             await navigator.clipboard.writeText(noteText);
             feedback.textContent = '✓ Copied to clipboard!';
             feedback.classList.add('show');
-            
+
+            // Announce to screen readers
+            announceToScreenReader('Note successfully copied to clipboard');
+
             // Save this note to history
             saveNoteToHistory();
-            
+
+            // Clear auto-save since work is complete
+            clearAutoSave();
+
             setTimeout(() => {
                 feedback.classList.remove('show');
             }, 3000);
@@ -792,6 +1428,9 @@ function setupCopyButton(noteText) {
             console.error('Clipboard error:', error);
             feedback.textContent = '✗ Failed to copy. Please select and copy manually.';
             feedback.classList.add('show');
+
+            // Announce error to screen readers
+            announceToScreenReader('Failed to copy note. Please try manually selecting and copying the text.');
         }
     };
 }
@@ -806,18 +1445,39 @@ function setupResetButton() {
             evaluation: {},
             usePiePrefix: document.getElementById('piePrefix')?.checked || true
         };
-        
+
         // Reset UI
         document.querySelectorAll('.problem-btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById('interventionSection').style.display = 'none';
         document.getElementById('evaluationSection').style.display = 'none';
         document.getElementById('formatSection').style.display = 'none';
         document.getElementById('notePreview').style.display = 'none';
-        
-        // Scroll to top
+
+        // Announce to screen readers
+        announceToScreenReader('Form reset complete. Please select a problem type to begin a new note.');
+
+        // Scroll to top and focus first problem button
         window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setTimeout(() => {
+            const firstProblemBtn = document.querySelector('.problem-btn');
+            if (firstProblemBtn) {
+                firstProblemBtn.focus();
+            }
+        }, 500);
     };
 }
+
+// Clinical tips for Medical Order Review banner (rotates randomly on page load)
+const CLINICAL_TIPS = [
+    'Illinois School Code requires annual medical order review. Best practice: verify orders monthly. Document "medical orders reviewed and followed" in diabetes and medication notes.',
+    'Always document the 5 Rights: Right Student, Right Medication, Right Dose, Right Route, Right Time. This protects you legally and ensures patient safety.',
+    'For PRN medications: Document the specific reason for administration and the student\'s response to treatment within 30-60 minutes.',
+    'Delegation of care to unlicensed personnel requires RN assessment, training documentation, and ongoing supervision per Illinois Nurse Practice Act.',
+    'Emergency medications (EpiPens, Diastat, glucagon) require staff training documentation. Update emergency action plans annually and after any incident.',
+    'FERPA compliance: Never discuss student health information in hallways, staff rooms, or via unsecured email. Use "need to know" principle.',
+    'Maintain daily medication logs separate from health office visit logs. Reconcile controlled substance counts monthly for accountability.'
+];
 
 // Clinical Decision Support System - School Nursing Best Practices
 /**
@@ -844,8 +1504,9 @@ function checkClinicalDecisionSupport() {
         const daysSinceCheck = lastOrderCheck ? Math.floor((Date.now() - parseInt(lastOrderCheck)) / (1000 * 60 * 60 * 24)) : null;
         
         if (daysSinceCheck === null || daysSinceCheck > CLINICAL_LIMITS.ORDER_CHECK_DAYS) {
-        showAlert('warning', '⚕️ Medical Order Review', 
-            'Illinois School Code requires annual medical order review. Best practice: verify orders monthly. Document "medical orders reviewed and followed" in diabetes and medication notes.');
+        // Randomly select a clinical tip from the array
+        const randomTip = CLINICAL_TIPS[Math.floor(Math.random() * CLINICAL_TIPS.length)];
+        showAlert('warning', '⚕️ Medical Order Review', randomTip);
     }
     
         // 2. Documentation Completeness (CPS/IDPH Guidelines)

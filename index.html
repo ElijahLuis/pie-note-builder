@@ -7,67 +7,100 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <a href="#notePreview" class="skip-link">Skip to Note Preview ⬇</a>
+
     <div class="container">
-        <header>
-            <h1>PIE Note Builder</h1>
-            <p class="subtitle">Problem → Intervention → Evaluation</p>
+        <header role="banner">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><a href="#" id="homeLink" class="home-link">PIE Note Builder</a></h1>
+                    <p class="subtitle">Problem → Intervention → Evaluation</p>
+                </div>
+                <div class="header-buttons">
+                    <button id="darkModeBtn" class="utility-btn" aria-label="Toggle dark mode" aria-pressed="false">
+                        <span class="utility-icon">🌙</span>
+                        <span class="utility-text">Dark Mode</span>
+                    </button>
+                    <button id="privacyFilterBtn" class="utility-btn privacy-btn" aria-label="Toggle privacy filter" aria-pressed="false">
+                        <span class="utility-icon">👁️</span>
+                        <span class="utility-text">Privacy Filter</span>
+                    </button>
+                </div>
+            </div>
         </header>
 
+        <!-- Auto-save Indicator -->
+        <div id="autoSaveIndicator" class="auto-save-indicator" role="status" aria-live="polite" aria-atomic="true">
+            <span class="auto-save-icon">💾</span>
+            <span class="auto-save-text">Auto-saved</span>
+        </div>
+
         <!-- Clinical Decision Support Alerts -->
-        <div id="cdsAlerts" class="cds-alerts"></div>
+        <div id="cdsAlerts" class="cds-alerts" role="alert" aria-live="assertive"></div>
 
         <!-- Problem Section -->
-        <section class="card">
-            <h2>Problem</h2>
-            <div class="problem-buttons">
-                <button class="problem-btn" data-problem="diabetes">Diabetes Management</button>
-                <button class="problem-btn" data-problem="medication">Medication Administration</button>
-                <button class="problem-btn" data-problem="first-aid">First Aid / Minor Injury</button>
-                <button class="problem-btn" data-problem="other">Other</button>
+        <section class="card" role="region" aria-labelledby="problem-heading">
+            <h2 id="problem-heading">🩺 Problem</h2>
+            <div class="problem-buttons" role="group" aria-label="Problem type selection">
+                <button class="problem-btn" data-problem="diabetes" aria-label="Select Diabetes Management">
+                    <span>💉 Diabetes Management</span>
+                </button>
+                <button class="problem-btn" data-problem="medication" aria-label="Select Medication Administration">
+                    <span>💊 Medication Administration</span>
+                </button>
+                <button class="problem-btn" data-problem="first-aid" aria-label="Select First Aid / Minor Injury">
+                    <span>🩹 First Aid / Minor Injury</span>
+                </button>
+                <button class="problem-btn" data-problem="other" aria-label="Select Other Problem Type">
+                    <span>➕ Other</span>
+                </button>
             </div>
         </section>
 
         <!-- Intervention Section (dynamically populated) -->
-        <section class="card intervention-section" id="interventionSection" style="display: none;">
-            <h2>Intervention</h2>
-            <div id="interventionContent"></div>
+        <section class="card intervention-section sensitive" id="interventionSection" style="display: none;" role="region" aria-labelledby="intervention-heading">
+            <h2 id="intervention-heading">💉 Intervention</h2>
+            <div id="interventionContent" aria-label="Intervention details form"></div>
         </section>
 
         <!-- Evaluation Section -->
-        <section class="card evaluation-section" id="evaluationSection" style="display: none;">
-            <h2>Evaluation</h2>
-            <div id="evaluationContent"></div>
+        <section class="card evaluation-section sensitive-medium" id="evaluationSection" style="display: none;" role="region" aria-labelledby="evaluation-heading">
+            <h2 id="evaluation-heading">✅ Evaluation</h2>
+            <div id="evaluationContent" aria-label="Evaluation details form"></div>
         </section>
 
         <!-- Note Format Options -->
-        <section class="card format-section" id="formatSection" style="display: none;">
-            <h2>Note Format Options</h2>
+        <section class="card format-section" id="formatSection" style="display: none;" role="region" aria-labelledby="format-heading">
+            <h2 id="format-heading">⚙️ Note Format Options</h2>
             <div class="checkbox-item">
-                <input type="checkbox" id="piePrefix" checked>
+                <input type="checkbox" id="piePrefix" checked aria-describedby="prefix-description">
                 <label for="piePrefix">Include PIE prefixes (P:, I:, E:) in note</label>
             </div>
-            <p class="info-text" style="margin-top: 10px;">With prefixes: "P: Student presented with..." | Without: "Student presented with..."</p>
+            <p id="prefix-description" class="info-text" style="margin-top: 10px;">With prefixes: "P: Student presented with..." | Without: "Student presented with..."</p>
         </section>
 
         <!-- Generated Note Preview -->
-        <section class="card note-preview" id="notePreview" style="display: none;">
-            <h2>Generated PIE Note</h2>
-            <div class="note-content" id="noteContent"></div>
+        <section class="card note-preview" id="notePreview" style="display: none;" role="region" aria-labelledby="preview-heading" aria-live="polite">
+            <h2 id="preview-heading">📋 Generated PIE Note</h2>
+            <div class="note-content" id="noteContent" role="document" aria-label="Generated clinical note"></div>
             <div class="note-actions">
-                <button id="copyBtn" class="primary-btn">Copy to Clipboard</button>
-                <button id="resetBtn" class="secondary-btn">Start New Note</button>
+                <button id="copyBtn" class="primary-btn" aria-label="Copy note to clipboard">📋 Copy to Clipboard</button>
+                <button id="resetBtn" class="secondary-btn" aria-label="Reset form and start new note">🔄 Start New Note</button>
             </div>
-            <div id="copyFeedback" class="copy-feedback"></div>
+            <div id="copyFeedback" class="copy-feedback" role="status" aria-live="polite"></div>
         </section>
 
         <!-- Usage Statistics (for clinical decision support) -->
-        <section class="card stats-section" id="statsSection">
-            <h2>📊 Your Documentation Patterns</h2>
-            <div id="statsContent">
+        <section class="card stats-section" id="statsSection" role="region" aria-labelledby="stats-heading">
+            <h2 id="stats-heading">📊 Your Documentation Patterns</h2>
+            <div id="statsContent" aria-label="Usage statistics">
                 <p class="info-text">Pattern tracking will appear after you create a few notes.</p>
             </div>
         </section>
     </div>
+
+    <!-- Screen Reader Announcements -->
+    <div id="sr-announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <script src="script.js"></script>
 </body>

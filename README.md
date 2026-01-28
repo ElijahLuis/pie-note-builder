@@ -15,12 +15,46 @@ School nurses spend valuable time repeatedly selecting the same dropdowns and ty
 
 ## 🚀 Quick Start
 
-1. **Open the tool**: Simply open `index.html` in any modern web browser
-2. **Select a problem**: Choose from Diabetes Management, Medication Administration, First Aid, or Other
-3. **Document interventions**: Fill in relevant interventions using checkboxes, dropdowns, and text fields
-4. **Add evaluation**: Select or describe the student's response and follow-up needs
-5. **Review & copy**: The PIE-formatted note generates automatically - click "Copy to Clipboard"
-6. **Paste into SSM**: Paste the formatted note directly into your SSM free text box
+### Option 1: Start via Terminal (Recommended)
+
+```bash
+# Make the script executable (first time only)
+chmod +x start.sh
+
+# Start the server
+./start.sh
+```
+
+Then open your browser to: **http://localhost:8080**
+
+**Alternative terminal commands:**
+```bash
+# Using npm
+npm start
+
+# Or directly with Python
+python3 -m http.server 8080
+```
+
+### Option 2: Open Directly
+
+Simply open `index.html` in any modern web browser (double-click the file)
+
+### Using the Tool
+
+1. **Select a problem**: Choose from Diabetes Management, Medication Administration, First Aid, or Other
+2. **Document interventions**: Fill in relevant interventions using checkboxes, dropdowns, and text fields
+3. **Add evaluation**: Select or describe the student's response and follow-up needs
+4. **Review & copy**: The PIE-formatted note generates automatically - click "Copy to Clipboard"
+5. **Paste into SSM**: Paste the formatted note directly into your SSM free text box
+
+### ⌨️ Keyboard Shortcuts
+
+- **Alt+1-4**: Quickly select problem type
+- **Alt+C**: Copy note to clipboard
+- **Alt+R**: Reset form and start new note
+- **Tab**: Navigate through form fields
+- **Enter**: Activate buttons
 
 ## 📋 Features
 
