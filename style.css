@@ -116,12 +116,25 @@ body.dark-mode .problem-btn::before {
     background: currentColor;
 }
 
-body.dark-mode .skip-link {
-    background: var(--color-primary);
+body.dark-mode .sidebar-btn {
+    background: #253544;
+    border-color: #3A4D5C;
+    color: var(--color-text-primary);
 }
 
-body.dark-mode .skip-link:hover {
-    background: #159BB8;
+body.dark-mode .sidebar-btn:hover {
+    border-color: var(--color-primary);
+}
+
+body.dark-mode .sidebar-btn[aria-pressed="true"] {
+    background: var(--color-primary);
+    color: white;
+}
+
+body.dark-mode #darkModeBtn[aria-pressed="true"] {
+    background: linear-gradient(135deg, #FFD93D 0%, #FFC107 100%);
+    color: #2C3E50;
+    border-color: #FFD93D;
 }
 
 body.dark-mode .copy-feedback {
@@ -175,16 +188,7 @@ header {
 }
 
 header .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--spacing-md);
-    flex-wrap: wrap;
-}
-
-header .header-left {
-    flex: 1;
-    min-width: 300px;
+    text-align: center;
 }
 
 header h1 {
@@ -207,62 +211,6 @@ header h1::before {
     letter-spacing: 0.5px;
 }
 
-.header-buttons {
-    display: flex;
-    gap: var(--spacing-md);
-    flex-wrap: wrap;
-}
-
-.utility-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-base);
-    box-shadow: var(--shadow-md);
-    font-weight: 600;
-    font-size: 0.9em;
-    min-height: 80px;
-    min-width: 100px;
-}
-
-.utility-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-.utility-btn:focus {
-    outline: 3px solid var(--color-primary);
-    outline-offset: 3px;
-}
-
-.utility-btn .utility-icon {
-    font-size: 2em;
-}
-
-/* Dark Mode Button Specific */
-#darkModeBtn {
-    background: linear-gradient(135deg, #2C3E50 0%, #34495e 100%);
-}
-
-#darkModeBtn:hover {
-    background: linear-gradient(135deg, #34495e 0%, #2C3E50 100%);
-}
-
-#darkModeBtn[aria-pressed="true"] {
-    background: linear-gradient(135deg, #FFD93D 0%, #FFC107 100%);
-    color: #2C3E50;
-}
-
-#darkModeBtn[aria-pressed="true"] .utility-icon {
-    content: "☀️";
-}
 
 /* Privacy Button Specific */
 .privacy-btn[aria-pressed="true"] {
@@ -418,7 +366,7 @@ body.privacy-active .sensitive-high::after {
 .auto-save-indicator {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
     background: var(--color-success);
     color: white;
     padding: 12px 20px;
@@ -847,31 +795,130 @@ section.card[role="region"] {
 }
 
 /* Skip Link for Accessibility */
-.skip-link {
+/* Fixed Utility Sidebar */
+.utility-sidebar {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: var(--color-primary);
-    color: white;
-    padding: var(--spacing-sm) var(--spacing-md);
-    text-decoration: none;
-    z-index: 100;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+    transition: right 0.3s ease;
+}
+
+.sidebar-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 80px;
+    padding: 14px 8px;
+    background: white;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    color: var(--color-text-primary);
+    font-size: 0.75em;
     font-weight: 600;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    transition: all var(--transition-base);
 }
 
-.skip-link:hover {
-    background: #159BB8;
-    transform: translateY(2px);
+.sidebar-btn:hover {
+    transform: translateX(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-primary);
 }
 
-.skip-link:focus {
-    outline: 3px solid white;
-    outline-offset: -3px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+.sidebar-btn:focus {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+.sidebar-btn:active {
+    transform: translateX(-2px) scale(0.98);
+}
+
+.sidebar-icon {
+    font-size: 1.8em;
+    line-height: 1;
+}
+
+.sidebar-text {
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+/* Active states for sidebar buttons */
+.sidebar-btn[aria-pressed="true"] {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+/* Dark Mode specific sidebar styles */
+#darkModeBtn[aria-pressed="true"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+}
+
+/* Mobile: Convert sidebar to bottom bar */
+@media (max-width: 768px) {
+    .utility-sidebar {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        transform: none;
+        flex-direction: row;
+        justify-content: space-around;
+        gap: 0;
+        background: white;
+        border-top: 2px solid var(--color-border);
+        padding: 8px;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+    }
+
+    body.dark-mode .utility-sidebar {
+        background: #1E2A35;
+        border-top-color: #3A4D5C;
+    }
+
+    .sidebar-btn {
+        width: auto;
+        flex: 1;
+        padding: 12px 8px;
+        box-shadow: none;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .sidebar-btn:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .sidebar-btn:active {
+        transform: scale(0.95);
+    }
+
+    .sidebar-text {
+        font-size: 0.7em;
+    }
+
+    .sidebar-icon {
+        font-size: 1.5em;
+    }
+
+    /* Add padding to body to account for fixed bottom bar */
+    .container {
+        padding-bottom: 80px;
+    }
 }
 
 /* Responsive Design */
@@ -972,4 +1019,48 @@ section.card[role="region"] {
     to {
         opacity: 1;
     }
+}
+
+/* Medication Name Warning */
+.medication-warning {
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: #FFF3CD;
+    border: 1px solid #FFD93D;
+    border-left: 4px solid #FFB84D;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.9em;
+    color: #856404;
+    animation: slideDown 0.3s ease-out;
+}
+
+.medication-warning .warning-icon {
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+.medication-warning .warning-text {
+    flex: 1;
+    line-height: 1.4;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dark mode support for medication warning */
+body.dark-mode .medication-warning {
+    background: #3D3416;
+    border-color: #5A4F1A;
+    color: #FFD93D;
 }

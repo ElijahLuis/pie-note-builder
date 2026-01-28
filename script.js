@@ -82,6 +82,53 @@ function sanitizeHTML(str) {
     return div.innerHTML;
 }
 
+/**
+ * Validates medication name against known medications list
+ * @param {string} medName - The medication name to validate
+ * @returns {boolean} - True if medication matches known list
+ */
+function isKnownMedication(medName) {
+    if (!medName || medName.trim() === '') return true; // Empty is OK, will be handled elsewhere
+
+    const normalized = medName.trim().toLowerCase();
+
+    // Check for exact matches or partial matches (case-insensitive)
+    return COMMON_MEDICATIONS.some(knownMed => {
+        const knownNormalized = knownMed.toLowerCase();
+
+        // Exact match
+        if (knownNormalized === normalized) return true;
+
+        // Check if typed name is contained in known medication
+        // (handles "Tylenol" matching "Acetaminophen (Tylenol)")
+        if (knownNormalized.includes(normalized)) return true;
+
+        // Check if known medication name is contained in typed name
+        // (handles partial brand names)
+        const parts = knownNormalized.split(/[\(\),]/);
+        return parts.some(part => {
+            const trimmed = part.trim();
+            return trimmed && normalized.includes(trimmed);
+        });
+    });
+}
+
+/**
+ * Shows or hides medication validation warning
+ * @param {boolean} show - Whether to show the warning
+ * @returns {void}
+ */
+function toggleMedicationWarning(show) {
+    const warning = document.getElementById('med-name-warning');
+    if (warning) {
+        warning.style.display = show ? 'flex' : 'none';
+
+        if (show) {
+            announceToScreenReader('Warning: This medication name is not recognized. Please verify the spelling.');
+        }
+    }
+}
+
 // Data structures
 const problems = {
     diabetes: {
@@ -185,18 +232,94 @@ const STORAGE_KEYS = {
     AUTO_SAVE: 'pie_auto_save'
 };
 
+// Common school medications for autocomplete and validation
+const COMMON_MEDICATIONS = [
+    // Pain & Fever
+    "Acetaminophen (Tylenol)",
+    "Ibuprofen (Advil, Motrin)",
+    "Naproxen (Aleve)",
+
+    // ADHD Medications
+    "Methylphenidate (Ritalin, Concerta)",
+    "Amphetamine/Dextroamphetamine (Adderall)",
+    "Lisdexamfetamine (Vyvanse)",
+    "Atomoxetine (Strattera)",
+    "Guanfacine (Intuniv)",
+    "Clonidine (Kapvay)",
+    "Dexmethylphenidate (Focalin)",
+
+    // Antibiotics
+    "Amoxicillin",
+    "Amoxicillin-Clavulanate (Augmentin)",
+    "Azithromycin (Z-pack, Zithromax)",
+    "Cephalexin (Keflex)",
+    "Cefdinir (Omnicef)",
+
+    // Respiratory/Asthma
+    "Albuterol inhaler (ProAir, Ventolin, ProAir RespiClick)",
+    "Fluticasone inhaler (Flovent)",
+    "Budesonide inhaler (Pulmicort)",
+    "Levalbuterol (Xopenex)",
+    "Albuterol nebulizer solution",
+    "Montelukast (Singulair)",
+
+    // Antihistamines/Allergy
+    "Diphenhydramine (Benadryl)",
+    "Cetirizine (Zyrtec)",
+    "Loratadine (Claritin)",
+    "Fexofenadine (Allegra)",
+    "Chlorpheniramine",
+
+    // Emergency Medications
+    "Epinephrine auto-injector (EpiPen, Auvi-Q)",
+    "Glucagon emergency kit",
+    "Diazepam rectal gel (Diastat)",
+    "Midazolam nasal spray (Nayzilam)",
+
+    // Diabetes - Insulin
+    "Insulin lispro (Humalog)",
+    "Insulin aspart (Novolog)",
+    "Insulin glargine (Lantus)",
+    "Insulin detemir (Levemir)",
+    "Insulin degludec (Tresiba)",
+    "NPH insulin (Humulin N, Novolin N)",
+    "Regular insulin (Humulin R, Novolin R)",
+
+    // GI/Nausea
+    "Ondansetron (Zofran)",
+    "Bismuth subsalicylate (Pepto-Bismol)",
+    "Calcium carbonate (Tums)",
+    "Omeprazole (Prilosec)",
+    "Ranitidine (Zantac)",
+
+    // Antiepileptic
+    "Levetiracetam (Keppra)",
+    "Valproic acid (Depakote)",
+    "Lamotrigine (Lamictal)",
+    "Carbamazepine (Tegretol)",
+
+    // Other Common
+    "Methylprednisolone dose pack (Medrol)",
+    "Prednisone",
+    "Olopatadine eye drops (Pataday, Patanol)",
+    "Erythromycin eye ointment",
+    "Hydrocortisone cream",
+    "Bacitracin ointment",
+    "Mupirocin ointment (Bactroban)"
+];
+
 // Auto-save state
 let autoSaveTimer = null;
 let lastAutoSave = null;
 
 /**
- * Sets up skip link to smoothly scroll to note preview
+ * Sets up skip to note button to smoothly scroll to note preview
  * @returns {void}
  */
 function setupSkipLink() {
-    const skipLink = document.querySelector('.skip-link');
-    if (skipLink) {
-        skipLink.addEventListener('click', (e) => {
+    const skipBtn = document.getElementById('skipToNoteBtn');
+    if (skipBtn) {
+        skipBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const notePreview = document.getElementById('notePreview');
             if (notePreview && notePreview.style.display !== 'none') {
@@ -206,6 +329,9 @@ function setupSkipLink() {
                     const copyBtn = document.getElementById('copyBtn');
                     if (copyBtn) copyBtn.focus();
                 }, 500);
+                announceToScreenReader('Scrolled to note preview');
+            } else {
+                announceToScreenReader('No note generated yet. Please complete the form first.');
             }
         });
     }
@@ -285,10 +411,10 @@ function setupPrivacyFilter() {
             privacyBtn.setAttribute('aria-pressed', isActive.toString());
 
             if (isActive) {
-                privacyBtn.querySelector('.utility-text').textContent = 'Privacy ON';
+                privacyBtn.querySelector('.sidebar-text').textContent = 'Privacy ON';
                 announceToScreenReader('Privacy filter activated. Sensitive information is now hidden.');
             } else {
-                privacyBtn.querySelector('.utility-text').textContent = 'Privacy Filter';
+                privacyBtn.querySelector('.sidebar-text').textContent = 'Privacy';
                 announceToScreenReader('Privacy filter deactivated. Sensitive information is now visible.');
             }
         });
@@ -311,8 +437,8 @@ function setupDarkMode() {
     if (isDarkMode) {
         document.body.classList.add('dark-mode');
         darkModeBtn.setAttribute('aria-pressed', 'true');
-        darkModeBtn.querySelector('.utility-icon').textContent = '☀️';
-        darkModeBtn.querySelector('.utility-text').textContent = 'Light Mode';
+        darkModeBtn.querySelector('.sidebar-icon').textContent = '☀️';
+        darkModeBtn.querySelector('.sidebar-text').textContent = 'Light';
     }
 
     // Toggle handler
@@ -321,13 +447,13 @@ function setupDarkMode() {
         darkModeBtn.setAttribute('aria-pressed', isActive.toString());
 
         if (isActive) {
-            darkModeBtn.querySelector('.utility-icon').textContent = '☀️';
-            darkModeBtn.querySelector('.utility-text').textContent = 'Light Mode';
+            darkModeBtn.querySelector('.sidebar-icon').textContent = '☀️';
+            darkModeBtn.querySelector('.sidebar-text').textContent = 'Light';
             localStorage.setItem(STORAGE_KEYS.DARK_MODE, 'true');
             announceToScreenReader('Dark mode activated. Interface colors adjusted for low light viewing.');
         } else {
-            darkModeBtn.querySelector('.utility-icon').textContent = '🌙';
-            darkModeBtn.querySelector('.utility-text').textContent = 'Dark Mode';
+            darkModeBtn.querySelector('.sidebar-icon').textContent = '🌙';
+            darkModeBtn.querySelector('.sidebar-text').textContent = 'Dark Mode';
             localStorage.setItem(STORAGE_KEYS.DARK_MODE, 'false');
             announceToScreenReader('Light mode activated. Interface colors restored to default.');
         }
@@ -729,10 +855,33 @@ function displayInterventions(problemKey) {
             const stepAttr = intervention.step !== undefined ? `step="${intervention.step}"` : '';
             const ariaRequired = highSensitivityFields.includes(intervention.id) ? 'aria-required="true"' : '';
 
-            div.innerHTML = `
-                <label for="${intervention.id}">${intervention.label}:</label>
-                <input type="${inputType}" id="${intervention.id}" data-intervention="${intervention.id}" placeholder="${intervention.inputLabel}" ${minAttr} ${maxAttr} ${stepAttr} ${ariaRequired} aria-label="${intervention.label}">
-            `;
+            // Special handling for medication name field with autocomplete
+            if (intervention.id === 'med-name') {
+                div.innerHTML = `
+                    <label for="${intervention.id}">${intervention.label}:</label>
+                    <input
+                        type="${inputType}"
+                        id="${intervention.id}"
+                        list="medication-list"
+                        data-intervention="${intervention.id}"
+                        placeholder="${intervention.inputLabel}"
+                        ${ariaRequired}
+                        aria-label="${intervention.label}"
+                        autocomplete="off">
+                    <datalist id="medication-list">
+                        ${COMMON_MEDICATIONS.map(med => `<option value="${sanitizeHTML(med)}">`).join('')}
+                    </datalist>
+                    <div id="med-name-warning" class="medication-warning" style="display: none;" role="alert">
+                        <span class="warning-icon">⚠️</span>
+                        <span class="warning-text">This medication is not in our common medications list. Please verify the spelling.</span>
+                    </div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <label for="${intervention.id}">${intervention.label}:</label>
+                    <input type="${inputType}" id="${intervention.id}" data-intervention="${intervention.id}" placeholder="${intervention.inputLabel}" ${minAttr} ${maxAttr} ${stepAttr} ${ariaRequired} aria-label="${intervention.label}">
+                `;
+            }
         }
 
         content.appendChild(div);
@@ -740,8 +889,26 @@ function displayInterventions(problemKey) {
 
     // Add event listeners to track inputs
     content.querySelectorAll('[data-intervention]').forEach(el => {
+        // Special handling for medication name field
+        if (el.id === 'med-name') {
+            el.addEventListener('input', (e) => {
+                updateInterventionState(e);
+            });
+
+            el.addEventListener('blur', (e) => {
+                // Validate medication name on blur
+                const medName = e.target.value;
+                const isKnown = isKnownMedication(medName);
+                toggleMedicationWarning(!isKnown && medName.trim() !== '');
+            });
+
+            el.addEventListener('focus', () => {
+                // Hide warning when user starts typing again
+                toggleMedicationWarning(false);
+            });
+        }
         // For critical clinical fields (BG, insulin), only validate on change/blur, not on every keystroke
-        if (el.id === 'bg-check' || el.id === 'insulin-admin' || el.id === 'carbs-consumed') {
+        else if (el.id === 'bg-check' || el.id === 'insulin-admin' || el.id === 'carbs-consumed') {
             el.addEventListener('change', updateInterventionState);
             el.addEventListener('blur', updateInterventionState);
         } else {

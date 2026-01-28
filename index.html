@@ -7,25 +7,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <a href="#notePreview" class="skip-link">Skip to Note Preview ⬇</a>
+    <!-- Fixed Utility Sidebar -->
+    <aside class="utility-sidebar" role="complementary" aria-label="Utility controls">
+        <button id="skipToNoteBtn" class="sidebar-btn" aria-label="Skip to note preview">
+            <span class="sidebar-icon">⬇️</span>
+            <span class="sidebar-text">Skip to Note</span>
+        </button>
+        <button id="darkModeBtn" class="sidebar-btn" aria-label="Toggle dark mode" aria-pressed="false">
+            <span class="sidebar-icon">🌙</span>
+            <span class="sidebar-text">Dark Mode</span>
+        </button>
+        <button id="privacyFilterBtn" class="sidebar-btn" aria-label="Toggle privacy filter" aria-pressed="false">
+            <span class="sidebar-icon">👁️</span>
+            <span class="sidebar-text">Privacy</span>
+        </button>
+    </aside>
 
     <div class="container">
         <header role="banner">
             <div class="header-content">
-                <div class="header-left">
-                    <h1><a href="#" id="homeLink" class="home-link">PIE Note Builder</a></h1>
-                    <p class="subtitle">Problem → Intervention → Evaluation</p>
-                </div>
-                <div class="header-buttons">
-                    <button id="darkModeBtn" class="utility-btn" aria-label="Toggle dark mode" aria-pressed="false">
-                        <span class="utility-icon">🌙</span>
-                        <span class="utility-text">Dark Mode</span>
-                    </button>
-                    <button id="privacyFilterBtn" class="utility-btn privacy-btn" aria-label="Toggle privacy filter" aria-pressed="false">
-                        <span class="utility-icon">👁️</span>
-                        <span class="utility-text">Privacy Filter</span>
-                    </button>
-                </div>
+                <h1><a href="#" id="homeLink" class="home-link">PIE Note Builder</a></h1>
+                <p class="subtitle">Problem → Intervention → Evaluation</p>
             </div>
         </header>
 
